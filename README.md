@@ -1,0 +1,89 @@
+# SyncGlass
+
+[![notarized download](https://img.shields.io/github/actions/workflow/status/alberti42/SyncGlass/verify-release.yml?branch=main&label=notarized%20download&logo=apple)](https://github.com/alberti42/SyncGlass/actions/workflows/verify-release.yml)
+[![build](https://img.shields.io/github/actions/workflow/status/alberti42/SyncGlass/build.yml?branch=main&label=build)](https://github.com/alberti42/SyncGlass/actions/workflows/build.yml)
+
+**A menu-bar app for macOS that shows which files iCloud Drive is uploading and downloading.**
+
+Free and open source (GPL-3.0). Requires macOS 26 or later; runs natively on Apple silicon and Intel Macs.
+
+SyncGlass lists iCloud Drive's transfers in one place: how many files are in flight, each file's percentage, and when each transfer finished.
+
+---
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+- [Permissions and privacy](#permissions-and-privacy)
+- [How it works](#how-it-works)
+- [Building from source](#building-from-source)
+- [Credits](#credits)
+- [License](#license)
+
+---
+
+## Features
+
+- **Menu-bar icon** for each state: up to date, uploading, downloading, syncing changes from other devices, offline. The icon is monochrome, so it follows light mode, dark mode and the menu bar's tint. An optional mode fills the cloud as files finish.
+- **Transfers**: the files iCloud is uploading or downloading, each with its percentage and size ("Uploading · 34 % of 209.72 MB").
+- **Recent**: the files that finished transferring, newest first, with the time and direction ("Uploaded 3 min ago").
+- **File Info**: for any listed file, its iCloud status, live percentage, conflicts, upload and download errors, sharing, the last transfer SyncGlass recorded, and every date macOS keeps for the file.
+- **Notifications** when uploads or downloads finish. Short transfers can be left out, and the sound can be chosen.
+- **Filters**: include and exclude regular expressions, matched against the full path.
+- **Scan for Transfers** finds files that started uploading before SyncGlass was running.
+- **History log** of finished transfers, which opens in Console.
+- **Open at login**, through a login helper registered with macOS.
+
+## Installation
+
+1. Download `SyncGlass.zip` from the [latest release](https://github.com/alberti42/SyncGlass/releases/latest).
+2. Unzip it and move `SyncGlass.app` to the Applications folder.
+3. Open it. On the first launch, choose whether to watch iCloud Drive or all iCloud documents, and whether to open SyncGlass at login.
+
+The app is signed with a Developer ID and notarized by Apple. To check where a downloaded ZIP was built:
+
+```sh
+gh attestation verify SyncGlass.zip --repo alberti42/SyncGlass
+```
+
+## Permissions and privacy
+
+- macOS may ask whether SyncGlass can access iCloud Drive. SyncGlass needs that access to read the iCloud state of your files.
+- SyncGlass makes no network connections and collects no data.
+- Its settings (`~/Library/Preferences/io.alberti42.SyncGlass.plist`), history log and recent-files list (`~/Library/Application Support/io.alberti42.SyncGlass/`) stay on your Mac.
+
+## How it works
+
+SyncGlass uses public macOS APIs only:
+
+- **FSEvents** reports which files change in the watched folder (`~/Library/Mobile Documents`, or only its iCloud Drive part).
+- **URL resource values** (`ubiquitousItemIsUploaded`, `ubiquitousItemIsUploading`, `ubiquitousItemIsDownloading`, …) give each file's iCloud state. A file stays in the Transfers list until iCloud reports it uploaded and no longer downloading.
+- **`Progress.addSubscriber(forFileURL:)`** receives the progress objects that iCloud Drive publishes for each file it transfers. They carry the byte counts behind the percentages.
+
+macOS records no date for when a file synced. The times in the Recent list are the moments SyncGlass saw a transfer finish, so they exist only for transfers it watched.
+
+## Building from source
+
+Requires Xcode 26 or later.
+
+```sh
+bin/build-app.sh            # build/SyncGlass.app, universal, signed ad hoc
+open build/SyncGlass.app
+```
+
+`ARCHS=native bin/build-app.sh` builds for this Mac's architecture only. To sign with a Developer ID, set `SIGN_IDENTITY`:
+
+```sh
+SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" bin/build-app.sh
+```
+
+To use your own signing identity, also change the bundle identifiers `io.alberti42.SyncGlass` and `io.alberti42.SyncGlass.LoginHelper` in `Resources/Info.plist`, `Resources/LoginHelper-Info.plist`, `Sources/LoginHelper/main.swift`, `Sources/SyncGlass/LoginItem.swift` and `Sources/SyncGlass/Preferences.swift`.
+
+## Credits
+
+SyncGlass is inspired by [iCloudStatus](http://www.thealchemistguild.com) by The Alchemist Guild, a discontinued app for Intel Macs. SyncGlass is a new app and shares no code with it.
+
+## License
+
+[GNU General Public License v3.0](LICENSE)

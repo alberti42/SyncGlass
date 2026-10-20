@@ -1,0 +1,196 @@
+name: Build, Notarize and Draft Release
+
+# Triggered when a vX.Y.Z or vX.Y.Z-beta.N tag is pushed (created by bin/bump_version.sh).
+# A -beta.N tag creates a draft pre-release.
+# Pipeline:
+#   1. Build a universal binary (arm64 + x86_64) with bin/build-app.sh
+#   2. Sign the app and its login helper with the Developer ID Application certificate
+#   3. Notarize with Apple + staple the ticket
+#   4. Attest build provenance for the ZIP (Sigstore, verifiable with gh attestation verify)
+#   5. Create a draft GitHub release with the ZIP attached
+#
+# Publishing the draft is a manual step on GitHub. verify-release.yml then checks
+# the published ZIP.
+#
+# Secrets (repository settings > Secrets and variables > Actions):
+#   DEVELOPER_ID_CERTIFICATE_P12       base64 of the exported .p12 (certificate + private key)
+#   DEVELOPER_ID_CERTIFICATE_PASSWORD  password of the .p12
+#   NOTARIZATION_APPLE_ID              Apple ID of the developer account
+#   NOTARIZATION_TEAM_ID               team ID, e.g. 9V3X7C8VCK
+#   NOTARIZATION_PASSWORD              app-specific password for notarytool
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+
+jobs:
+  release:
+    runs-on: macos-26
+    permissions:
+      contents: write           # needed to create the release
+      id-token: write           # needed by actions/attest to request a Sigstore certificate
+      attestations: write       # needed by actions/attest to store the attestation
+      artifact-metadata: write  # needed by actions/attest to create the artifact storage record
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────────
+      - name: Checkout (full history + tags)
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      # ── Version info ──────────────────────────────────────────────────────────
+      - name: Extract version info
+        id: ver
+        run: |
+          TAG="${GITHUB_REF_NAME}"                          # e.g. v1.0.0 or v1.0.0-beta.1
+          SHORT="${TAG#v}"                                  # e.g. 1.0.0 or 1.0.0-beta.1
+          BASE="${SHORT%%-*}"                               # e.g. 1.0.0
+          if [[ "$SHORT" == *-* ]]; then PRERELEASE=true; else PRERELEASE=false; fi
+          PLIST_VERSION=$(plutil -extract CFBundleShortVersionString raw Resources/Info.plist)
+          BUILD=$(plutil -extract CFBundleVersion raw Resources/Info.plist)
+          # bin/bump_version.sh writes the version into Info.plist before tagging.
+          if [[ "$PLIST_VERSION" != "$BASE" ]]; then
+            echo "ERROR: tag $TAG does not match CFBundleShortVersionString $PLIST_VERSION"
+            exit 1
+          fi
+          ZIP="SyncGlass.zip"
+          echo "tag=$TAG"     >> "$GITHUB_OUTPUT"
+          echo "short=$SHORT" >> "$GITHUB_OUTPUT"
+          echo "build=$BUILD" >> "$GITHUB_OUTPUT"
+          echo "zip=$ZIP"     >> "$GITHUB_OUTPUT"
+          echo "prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
+          echo "Version ${SHORT}, build ${BUILD}, archive ${ZIP}"
+
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      # ── Code-signing certificate ──────────────────────────────────────────────
+      - name: Import Developer ID certificate into temporary keychain
+        env:
+          P12_BASE64:   ${{ secrets.DEVELOPER_ID_CERTIFICATE_P12 }}
+          P12_PASSWORD: ${{ secrets.DEVELOPER_ID_CERTIFICATE_PASSWORD }}
+        run: |
+          KC="$RUNNER_TEMP/build.keychain-db"
+          KC_PASS="ci-keychain"   # ephemeral, only lives for this job
+          security create-keychain -p "$KC_PASS" "$KC"
+          security set-keychain-settings -lut 21600 "$KC"    # 6-hour timeout
+          security unlock-keychain -p "$KC_PASS" "$KC"
+
+          echo "$P12_BASE64" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KC" \
+            -P "$P12_PASSWORD" -T /usr/bin/codesign
+          rm "$RUNNER_TEMP/cert.p12"
+
+          security list-keychain -d user -s "$KC"
+          # Allow codesign to use the key without a passphrase prompt.
+          security set-key-partition-list \
+            -S "apple-tool:,apple:,codesign:" -s -k "$KC_PASS" "$KC"
+
+      # ── Build and sign ────────────────────────────────────────────────────────
+      - name: Build and sign universal app
+        env:
+          TEAM_ID: ${{ secrets.NOTARIZATION_TEAM_ID }}
+        run: |
+          SIGN_IDENTITY="Developer ID Application: Andrea Alberti ($TEAM_ID)" bin/build-app.sh
+          codesign -vv --deep --strict build/SyncGlass.app
+
+      # ── Notarize ──────────────────────────────────────────────────────────────
+      - name: Notarize with Apple and staple ticket
+        env:
+          APPLE_ID: ${{ secrets.NOTARIZATION_APPLE_ID }}
+          TEAM_ID:  ${{ secrets.NOTARIZATION_TEAM_ID }}
+          APP_PASS: ${{ secrets.NOTARIZATION_PASSWORD }}
+          ZIP:      ${{ steps.ver.outputs.zip }}
+        run: |
+          APP="build/SyncGlass.app"
+
+          # Package for submission
+          ditto -c -k --keepParent "$APP" "$ZIP"
+
+          # Submit and wait (typically 2-10 minutes)
+          xcrun notarytool submit "$ZIP" \
+            --apple-id "$APPLE_ID" \
+            --team-id  "$TEAM_ID" \
+            --password "$APP_PASS" \
+            --wait
+
+          # Staple the notarization ticket into the .app
+          xcrun stapler staple "$APP"
+          spctl --assess --verbose "$APP"   # confirm Gatekeeper accepts it
+
+          # Re-zip with the stapled ticket in place
+          rm "$ZIP"
+          ditto -c -k --keepParent "$APP" "$ZIP"
+
+      # ── Build provenance ──────────────────────────────────────────────────────
+      # Records a signed SLSA provenance statement: this ZIP (by its SHA-256) was
+      # built by this workflow, from this commit and tag. To verify a downloaded ZIP:
+      #   gh attestation verify SyncGlass.zip --repo alberti42/SyncGlass
+      - name: Attest build provenance
+        uses: actions/attest@v4
+        with:
+          subject-path: ${{ steps.ver.outputs.zip }}
+
+      # ── Draft release ─────────────────────────────────────────────────────────
+      - name: Resolve previous tag
+        id: prev
+        run: |
+          CURR="${GITHUB_REF_NAME}"
+          # versionsort.suffix sorts v1.1.0-beta.1 before v1.1.0. A release compares
+          # against the previous release, so its notes cover its pre-releases too;
+          # a pre-release compares against the previous tag of either kind.
+          TAGS=$(git -c versionsort.suffix=-beta tag --list 'v*' --sort=-v:refname)
+          if [[ "$CURR" != *-* ]]; then TAGS=$(echo "$TAGS" | grep -v -e '-'); fi
+          # The tag listed right after the current one, in descending version order.
+          # Empty for the first release.
+          PREV=$(echo "$TAGS" | awk -v c="$CURR" 'found {print; exit} $0 == c {found=1}')
+          echo "tag=${PREV}" >> "$GITHUB_OUTPUT"
+
+      - name: Build changelog
+        env:
+          PREV_TAG: ${{ steps.prev.outputs.tag }}
+          CURR_TAG: ${{ steps.ver.outputs.tag }}
+          REPO:     ${{ github.repository }}
+        run: |
+          if [[ -n "$PREV_TAG" ]]; then
+            RANGE="${PREV_TAG}..HEAD"
+            SINCE="since ${PREV_TAG}"
+            DIFF="**Full diff:** https://github.com/${REPO}/compare/${PREV_TAG}...${CURR_TAG}"
+          else
+            RANGE="HEAD"
+            SINCE="in this first release"
+            DIFF=""
+          fi
+          COMMITS=$(git log "$RANGE" --oneline --no-merges \
+            | sed "s|^\([0-9a-f]*\) |- [\1](https://github.com/${REPO}/commit/\1) |")
+          # The draft starts with this version's CHANGELOG.md section; a pre-release
+          # uses [Unreleased], where its changes stay until the release.
+          SHORT="${CURR_TAG#v}"
+          if [[ "$SHORT" == *-* ]]; then SECTION=Unreleased; else SECTION="$SHORT"; fi
+          ENTRY=$(python3 bin/changelog.py section "$SECTION" || true)
+          {
+            if [[ -n "$ENTRY" ]]; then printf '%s\n\n' "$ENTRY"; fi
+            printf '## Changes %s\n\n' "$SINCE"
+            printf '%s\n\n' "${COMMITS:-_No commits listed._}"
+            if [[ -n "$DIFF" ]]; then printf '%s\n' "$DIFF"; fi
+          } > /tmp/notes.md
+
+      - name: Create draft GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG:      ${{ steps.ver.outputs.tag }}
+          ZIP:      ${{ steps.ver.outputs.zip }}
+          PRERELEASE: ${{ steps.ver.outputs.prerelease }}
+        run: |
+          PRERELEASE_FLAG=()
+          [[ "$PRERELEASE" == true ]] && PRERELEASE_FLAG=(--prerelease)
+          gh release create "$TAG" \
+            --draft "${PRERELEASE_FLAG[@]}" \
+            --title "$TAG" \
+            --notes-file /tmp/notes.md \
+            "$ZIP"
