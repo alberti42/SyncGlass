@@ -334,8 +334,9 @@ final class Tracker: @unchecked Sendable {
     /// dropped like a path that no longer exists.
     private func checkStatus(_ path: String, state: ItemState) {
         let trackDownloads = Prefs.trackIncomingDownloads
+        let phase = state.phase(trackDownloads: trackDownloads)
 
-        guard state.exists, state.isUbiquitous else {
+        guard phase != .ignored else {
             withState {
                 transfers.remove(path)
                 downloading.remove(path)
@@ -344,16 +345,15 @@ final class Tracker: @unchecked Sendable {
             return
         }
 
-        let inFlight = !state.isUploaded || state.isUploading || (trackDownloads && state.isDownloading)
         let tracked = withState { transfers.contains(path) }
 
-        if inFlight {
+        if case .inFlight(let isDownload) = phase {
             if tracked || PathChecks.passesFilters(path) {
                 withState {
                     if startTime == 0 { startTime = CFAbsoluteTimeGetCurrent() }
                     transfers.insert(path)
                     total.insert(path)
-                    if state.isUploaded && state.isDownloading {
+                    if isDownload {
                         downloading.insert(path)
                     } else {
                         downloading.remove(path)

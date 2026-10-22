@@ -37,8 +37,45 @@ struct ItemState {
         fileSize = v?.fileSize ?? 0
     }
 
+    /// A state with the given values, without reading the file system.
+    init(exists: Bool = true, isUbiquitous: Bool = true, isUploaded: Bool = true, isUploading: Bool = false,
+         isDownloading: Bool = false, isCurrent: Bool = true, isDirectory: Bool = false, isPackage: Bool = false,
+         isHidden: Bool = false, isSymbolicLink: Bool = false, fileSize: Int = 0) {
+        self.exists = exists
+        self.isUbiquitous = isUbiquitous
+        self.isUploaded = isUploaded
+        self.isUploading = isUploading
+        self.isDownloading = isDownloading
+        self.isCurrent = isCurrent
+        self.isDirectory = isDirectory
+        self.isPackage = isPackage
+        self.isHidden = isHidden
+        self.isSymbolicLink = isSymbolicLink
+        self.fileSize = fileSize
+    }
+
     /// Whether the item has content worth tracking: a non-empty file, or a folder.
     var containsBytes: Bool { fileSize != 0 || isDirectory }
+
+    enum Phase: Equatable {
+        /// The path no longer exists, or it is not in iCloud, such as a path
+        /// inside a `.nosync` folder. Such a path has no upload state.
+        case ignored
+        /// In transfer. `isDownload` is true when the item is uploaded and downloading.
+        case inFlight(isDownload: Bool)
+        /// Uploaded, not uploading and (when downloads are tracked) not downloading.
+        case current
+    }
+
+    /// A path stays in flight until it reports uploaded, not uploading and (when
+    /// "Track incoming downloads" is on) not downloading.
+    func phase(trackDownloads: Bool) -> Phase {
+        guard exists, isUbiquitous else { return .ignored }
+        if !isUploaded || isUploading || (trackDownloads && isDownloading) {
+            return .inFlight(isDownload: isUploaded && isDownloading)
+        }
+        return .current
+    }
 }
 
 enum PathChecks {
@@ -80,11 +117,14 @@ enum PathChecks {
     /// Include/exclude filtering. A path must match an include pattern (an empty
     /// include list matches every path) and no exclude pattern.
     static func passesFilters(_ path: String) -> Bool {
-        let includes = Prefs.includePatterns
+        passesFilters(path, includes: Prefs.includePatterns, excludes: Prefs.excludePatterns)
+    }
+
+    static func passesFilters(_ path: String, includes: [String], excludes: [String]) -> Bool {
         if !includes.isEmpty && !includes.contains(where: { matches(path, pattern: $0) }) {
             return false
         }
-        return !Prefs.excludePatterns.contains(where: { matches(path, pattern: $0) })
+        return !excludes.contains(where: { matches(path, pattern: $0) })
     }
 
     /// `GLOBALS.CONVERTBYTESTOHUMANREADABLE`: decimal units, at most 2 fraction digits.
