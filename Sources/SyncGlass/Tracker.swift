@@ -329,11 +329,13 @@ final class Tracker: @unchecked Sendable {
     /// finished if it was tracked and is now current, or count it as a change
     /// from another device. A download in flight is read from
     /// `ubiquitousItemIsDownloading`; macOS 14 and later keep dataless files in
-    /// place and create no `.icloud` placeholder files.
+    /// place and create no `.icloud` placeholder files. A path that is not in
+    /// iCloud, such as one inside a `.nosync` folder, has no upload state and is
+    /// dropped like a path that no longer exists.
     private func checkStatus(_ path: String, state: ItemState) {
         let trackDownloads = Prefs.trackIncomingDownloads
 
-        guard state.exists else {
+        guard state.exists, state.isUbiquitous else {
             withState {
                 transfers.remove(path)
                 downloading.remove(path)

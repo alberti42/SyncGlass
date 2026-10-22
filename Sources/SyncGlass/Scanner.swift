@@ -71,7 +71,8 @@ final class Scanner: ObservableObject {
                     if flag.isSet { return false }
                     let path = (dir as NSString).appendingPathComponent(name)
                     let state = ItemState(path: path)
-                    guard state.exists, !state.isHidden, !(ignoreSymlinks && state.isSymbolicLink) else { continue }
+                    guard state.exists, state.isUbiquitous, !state.isHidden, !(ignoreSymlinks && state.isSymbolicLink)
+                    else { continue }
                     if CFAbsoluteTimeGetCurrent() - lastUpdate > 0.1 {
                         lastUpdate = CFAbsoluteTimeGetCurrent()
                         let shown = (path as NSString).abbreviatingWithTildeInPath

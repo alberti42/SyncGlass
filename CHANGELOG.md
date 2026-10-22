@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- Files that are not in iCloud, such as files inside a `.nosync` folder, were listed as uploading and never finished. The tracker and Scan for Transfers now skip them.
+
 ## [0.1.0] - 2026-10-20
 
 ### Added
