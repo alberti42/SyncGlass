@@ -1,8 +1,8 @@
 name: Build
 
-# Builds the universal app, signed ad hoc, on every push to main and every pull
-# request. Catches compile errors with the runner's Xcode before a release tag
-# is pushed. Needs no secrets.
+# Runs the unit tests and builds the universal app, signed ad hoc, on every push
+# to main and every pull request. Catches test failures and compile errors with
+# the runner's Xcode before a release tag is pushed. Needs no secrets.
 
 on:
   push:
@@ -23,6 +23,12 @@ jobs:
         run: |
           xcodebuild -version
           swift --version
+
+      - name: Run unit tests
+        run: swift test
+
+      - name: Test the changelog script
+        run: python3 -m unittest discover -s Tests/Scripts -p '*_test.py'
 
       - name: Build universal app
         run: bin/build-app.sh
