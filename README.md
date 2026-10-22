@@ -82,7 +82,7 @@ To use your own signing identity, also change the bundle identifiers `io.alberti
 
 ## Credits
 
-SyncGlass is inspired by [iCloudStatus](http://www.thealchemistguild.com) by The Alchemist Guild, a discontinued app for Intel Macs. SyncGlass is a new app and shares no code with it.
+SyncGlass is inspired by [iCloudStatus](http://www.thealchemistguild.com) by The Alchemist Guild, a no longer maintained app for Intel Macs. SyncGlass is a new app and released as an entirely independent project. The app was created with AI assistance (Claude).
 
 ## License
 
