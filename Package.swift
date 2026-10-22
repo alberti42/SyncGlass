@@ -17,5 +17,12 @@ let package = Package(
             path: "Sources/LoginHelper",
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
+        // Unit tests for the parts that do not need iCloud Drive: `swift test`.
+        .testTarget(
+            name: "SyncGlassTests",
+            dependencies: ["SyncGlass"],
+            path: "Tests/SyncGlassTests",
+            swiftSettings: [.swiftLanguageMode(.v5)]
+        ),
     ]
 )
