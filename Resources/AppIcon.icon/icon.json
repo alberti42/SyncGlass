@@ -1,0 +1,9 @@
+{
+  "fill" : { "linear-gradient" : [ "srgb:0.97255,0.97647,0.98431,1.00000", "srgb:0.86275,0.88235,0.90980,1.00000" ] },
+  "groups" : [
+    { "layers" : [ { "image-name" : "5-glass.svg", "name" : "5-glass" } ] },
+    { "layers" : [ { "image-name" : "4-cloud.svg", "name" : "4-cloud" } ] },
+    { "layers" : [ { "image-name" : "3-rim.svg", "name" : "3-rim" }, { "image-name" : "2-handle.svg", "name" : "2-handle" } ] }
+  ],
+  "supported-platforms" : { "squares" : [ "macOS" ] }
+}

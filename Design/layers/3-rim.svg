@@ -1,0 +1,21 @@
+<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="linear-gradient4" x1="-50" y1="1729.4" x2="-48.8" y2="1728.2" gradientUnits="userSpaceOnUse" gradientTransform="matrix(400 0 0 -400 20200 691925)">
+            <stop offset="0" stop-color="#ffffff"/>
+            <stop offset="0.2" stop-color="#d3d5da"/>
+            <stop offset="0.4" stop-color="#f7f8fa"/>
+            <stop offset="0.6" stop-color="#9a9da3"/>
+            <stop offset="0.8" stop-color="#d0d2d6"/>
+            <stop offset="1" stop-color="#6c6f75"/>
+        </linearGradient>
+        <linearGradient id="linear-gradient5" x1="-50" y1="1729.2" x2="-48.8" y2="1728" gradientUnits="userSpaceOnUse" gradientTransform="matrix(363.2 0 0 -363.2 18378.4 628242.6)">
+            <stop offset="0" stop-color="#7e8187"/>
+            <stop offset="0.4" stop-color="#c2c4c9"/>
+            <stop offset="0.8" stop-color="#f4f5f7"/>
+            <stop offset="1" stop-color="#ffffff"/>
+        </linearGradient>
+    </defs>
+    <path fill="url(#linear-gradient4)" stroke="none" d="M 676.6 411.5 C 676.6 544.98724 568.3872 653.2 434.9 653.2 C 301.41278 653.2 193.19998 544.98724 193.20001 411.5 C 193.20001 278.0128 301.41278 169.8 434.9 169.8 C 568.3872 169.80002 676.6 278.0128 676.6 411.5 Z"/>
+    <path fill="url(#linear-gradient5)" stroke="none" d="M 654.4 411.5 C 654.4 532.7265 556.1265 631 434.9 631 C 313.6735 631 215.4 532.7265 215.4 411.5 C 215.4 290.2735 313.6735 192 434.9 192 C 556.1265 191.99998 654.4 290.2735 654.4 411.5 Z"/>
+    <path fill="#f3f5f8" stroke="none" d="M 638.7 411.5 C 638.7 524.05566 547.4556 615.3 434.9 615.3 C 322.34436 615.3 231.1 524.0556 231.09999 411.5 C 231.09999 298.94437 322.34436 207.69998 434.9 207.69998 C 547.4556 207.69998 638.7 298.94437 638.7 411.5 Z"/>
+</svg>

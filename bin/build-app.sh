@@ -36,6 +36,13 @@ cp Resources/Info.plist "$APP/Contents/Info.plist"
 cp "$BIN/LoginHelper" "$HELPER/Contents/MacOS/SyncGlassLoginHelper"
 cp Resources/LoginHelper-Info.plist "$HELPER/Contents/Info.plist"
 
+# Compile the Icon Composer file into Assets.car and AppIcon.icns. Info.plist
+# names the icon in CFBundleIconName and CFBundleIconFile, so the partial plist
+# that actool writes is not used.
+xcrun actool Resources/AppIcon.icon --compile "$APP/Contents/Resources" \
+    --platform macosx --minimum-deployment-target 26.0 --app-icon AppIcon \
+    --output-partial-info-plist build/AppIcon-partial.plist >/dev/null
+
 # A secure timestamp needs Apple's timestamp server; ad-hoc signatures cannot have one.
 if [ "$IDENTITY" = "-" ]; then TIMESTAMP="--timestamp=none"; else TIMESTAMP="--timestamp"; fi
 

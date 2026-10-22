@@ -1,0 +1,18 @@
+<svg width="1024" height="1024" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <radialGradient id="radial-gradient" cx="-49.5" cy="1728.6" r="0.8" fx="-49.5" fy="1728.6" gradientUnits="userSpaceOnUse" gradientTransform="matrix(337.2 0 0 -337.2 17091.4 583249.6)">
+            <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+            <stop offset="0.7" stop-color="#ffffff" stop-opacity="0.2"/>
+            <stop offset="1" stop-color="#b9bec7" stop-opacity="0.6"/>
+        </radialGradient>
+        <radialGradient id="radial-gradient1" cx="-51.8" cy="1724.5" r="0.6" fx="-51.8" fy="1724.5" gradientUnits="userSpaceOnUse" gradientTransform="matrix(184 0 0 -88 9882.8 152080)">
+            <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
+            <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+        </radialGradient>
+    </defs>
+    <path fill="url(#radial-gradient)" stroke="none" d="M 638.7 411.5 C 638.7 524.05566 547.4556 615.3 434.9 615.3 C 322.34436 615.3 231.1 524.0556 231.09999 411.5 C 231.09999 298.94437 322.34436 207.69998 434.9 207.69998 C 547.4556 207.69998 638.7 298.94437 638.7 411.5 Z"/>
+    <g transform="matrix(0.7660444 -0.64278764 0.64278764 0.7660444 -124.4 307.3)">
+        <path fill="url(#radial-gradient1)" stroke="none" d="M 471.20004 324.5 C 471.20004 353.8816 421.4141 377.7 360 377.7 C 298.58594 377.7 248.79999 353.8816 248.8 324.5 C 248.79999 295.11844 298.58594 271.3 360 271.3 C 421.4141 271.3 471.20004 295.11844 471.20004 324.5 Z"/>
+    </g>
+    <path fill="none" stroke="#5e6168" stroke-opacity="0.6" stroke-width="2" d="M 638.7 411.5 C 638.7 524.05566 547.4556 615.3 434.9 615.3 C 322.34436 615.3 231.1 524.0556 231.09999 411.5 C 231.09999 298.94437 322.34436 207.69998 434.9 207.69998 C 547.4556 207.69998 638.7 298.94437 638.7 411.5 Z"/>
+</svg>

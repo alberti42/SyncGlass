@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- App icon: a magnifying glass over a half-filled cloud.
+
 ### Fixed
 
 - Files that are not in iCloud, such as files inside a `.nosync` folder, were listed as uploading and never finished. The tracker and Scan for Transfers now skip them.
