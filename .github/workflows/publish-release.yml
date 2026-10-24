@@ -94,6 +94,13 @@ jobs:
             "$RUNNER_TEMP/original_appcast.xml"
           cp "$RUNNER_TEMP/original_appcast.xml" Releases/appcast.xml
 
+          # generate_appcast signs only archives whose app declares SUPublicEDKey,
+          # and Sparkle rejects an unsigned update. The first <enclosure> is the new item.
+          if ! grep -m1 '<enclosure ' Releases/appcast.xml | grep -q 'sparkle:edSignature='; then
+            echo "ERROR: the new appcast item has no sparkle:edSignature"
+            exit 1
+          fi
+
           # Only the appcast is committed; the ZIP stays on GitHub Releases.
           rm "Releases/$ZIP"
 
