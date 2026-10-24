@@ -8,7 +8,14 @@ import tempfile
 import unittest
 
 BIN = pathlib.Path(__file__).resolve().parents[2] / "bin"
-EMPTY = (pathlib.Path(__file__).resolve().parents[2] / "Releases" / "appcast.xml").read_text()
+EMPTY = """<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>SyncGlass</title>
+        <language>en</language>
+    </channel>
+</rss>
+"""
 
 OLD_URL = "https://github.com/alberti42/SyncGlass/releases/download/v1.0.0/SyncGlass.zip"
 NEW_URL = "https://github.com/alberti42/SyncGlass/releases/download/v1.1.0/SyncGlass.zip"
