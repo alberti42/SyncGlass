@@ -6,16 +6,18 @@ name: Verify Published Release
 #   2. Code signature: valid, and made with the Developer ID of team 9V3X7C8VCK.
 #   3. Notarization ticket stapled to the app.
 #   4. Gatekeeper accepts the app as "Notarized Developer ID".
+#   5. The newest item of the Sparkle appcast on main offers this ZIP.
 #
-# Runs weekly, when a release is published, and on demand. A check can fail with
+# Runs weekly, after publish-release.yml, and on demand. A check can fail with
 # no new release, for example if Apple revokes the certificate or the ticket.
 # Needs no secrets.
 
 on:
   schedule:
     - cron: '0 6 * * 1'   # Mondays, 06:00 UTC
-  release:
-    types: [released]
+  workflow_run:
+    workflows: ["Publish Release (Update Appcast)"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -72,3 +74,14 @@ jobs:
           OUT=$(spctl --assess --type execute --verbose=4 "extracted/SyncGlass.app" 2>&1)
           echo "$OUT"
           echo "$OUT" | grep -q "source=Notarized Developer ID"
+
+      - name: Verify the appcast offers the release
+        env:
+          TAG: ${{ steps.rel.outputs.tag }}
+        run: |
+          # The first <enclosure> is the newest item; publish-release.yml adds it.
+          URL=$(gh api "repos/$REPO/contents/Releases/appcast.xml?ref=main" \
+            -H "Accept: application/vnd.github.raw" \
+            | grep -o -m1 '<enclosure url="[^"]*"' | cut -d'"' -f2)
+          echo "Newest appcast item: $URL"
+          test "$URL" = "https://github.com/$REPO/releases/download/$TAG/SyncGlass.zip"

@@ -27,7 +27,7 @@ jobs:
       - name: Run unit tests
         run: swift test
 
-      - name: Test the changelog script
+      - name: Test the scripts in bin/
         run: python3 -m unittest discover -s Tests/Scripts -p '*_test.py'
 
       - name: Build universal app
@@ -38,5 +38,6 @@ jobs:
           APP=build/SyncGlass.app
           test -x "$APP/Contents/MacOS/SyncGlass"
           test -x "$APP/Contents/Library/LoginItems/SyncGlassLoginHelper.app/Contents/MacOS/SyncGlassLoginHelper"
+          test -x "$APP/Contents/Frameworks/Sparkle.framework/Versions/B/Autoupdate"
           lipo -archs "$APP/Contents/MacOS/SyncGlass" | grep -q arm64
           lipo -archs "$APP/Contents/MacOS/SyncGlass" | grep -q x86_64

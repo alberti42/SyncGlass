@@ -1,0 +1,119 @@
+name: Publish Release (Update Appcast)
+
+# Triggered by the "released" event: "A release was published, or a
+# pre-release was changed to a release" (GitHub webhook docs). It does not fire
+# for pre-releases, so publishing a pre-release leaves the appcast alone, and
+# promoting it to a full release later updates the appcast.
+# This workflow:
+#   1. Downloads SyncGlass.zip from the release assets.
+#   2. Adds an item for it to the Sparkle appcast (Releases/appcast.xml), with
+#      the GitHub release asset as the download URL.
+#   3. Commits only the updated appcast to main.
+#
+# Secret (repository settings > Secrets and variables > Actions):
+#   SPARKLE_ED_PRIVATE_KEY  base64 of the EdDSA private key file exported with
+#                           generate_keys --account SyncGlass -x <file>
+
+on:
+  release:
+    types: [released]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to process (e.g. v1.0.0)'
+        required: true
+
+jobs:
+  publish:
+    # Skip pre-releases. The "released" trigger already excludes them; this
+    # guard is a second check. Pre-releases are handed out by link only, so they
+    # must never reach the appcast.
+    # workflow_dispatch carries no release payload, so it is always allowed.
+    if: github.event_name == 'workflow_dispatch' || github.event.release.prerelease == false
+    runs-on: macos-26
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Extract version info
+        id: info
+        run: |
+          TAG="${{ github.event.release.tag_name || inputs.tag }}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "zip=SyncGlass.zip" >> "$GITHUB_OUTPUT"
+
+      # generate_appcast comes from the Sparkle version in Package.resolved, the
+      # one the app embeds. SwiftPM downloads it with the Sparkle package.
+      - name: Fetch Sparkle tools
+        run: |
+          swift package resolve
+          TOOL=.build/artifacts/sparkle/Sparkle/bin/generate_appcast
+          test -x "$TOOL"
+          cp "$TOOL" "$RUNNER_TEMP/generate_appcast"
+
+      - name: Download ZIP from release and place in Releases/
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG:      ${{ steps.info.outputs.tag }}
+          ZIP:      ${{ steps.info.outputs.zip }}
+        run: |
+          # generate_appcast uses this filename to build the enclosure URL:
+          # https://github.com/<repo>/releases/download/<tag>/SyncGlass.zip
+          gh release download "$TAG" --pattern "$ZIP" --output "Releases/$ZIP"
+
+      - name: Update Sparkle appcast
+        env:
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+          REPO: ${{ github.repository }}
+          TAG:  ${{ steps.info.outputs.tag }}
+          ZIP:  ${{ steps.info.outputs.zip }}
+        run: |
+          # Save the original appcast before generate_appcast modifies it
+          cp Releases/appcast.xml "$RUNNER_TEMP/original_appcast.xml"
+
+          # generate_appcast signs the ZIP without changing it, so the build
+          # provenance attestation from draft-release.yml stays valid.
+          echo "$SPARKLE_ED_PRIVATE_KEY" | base64 --decode | "$RUNNER_TEMP/generate_appcast" \
+            --ed-key-file - \
+            --download-url-prefix \
+              "https://github.com/${REPO}/releases/download/${TAG}/" \
+            --maximum-deltas 0 \
+            Releases/
+
+          # generate_appcast rewrites ALL entry URLs with the new prefix.
+          # Merge only the new <item> into the original appcast so old
+          # entries keep their original URLs.
+          python3 bin/merge_appcast_item.py \
+            Releases/appcast.xml \
+            "$RUNNER_TEMP/original_appcast.xml"
+          cp "$RUNNER_TEMP/original_appcast.xml" Releases/appcast.xml
+
+          # Only the appcast is committed; the ZIP stays on GitHub Releases.
+          rm "Releases/$ZIP"
+
+      - name: Inject GitHub release notes into appcast
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG:      ${{ steps.info.outputs.tag }}
+        run: |
+          # The release description (Markdown) as edited in the GitHub draft
+          gh release view "$TAG" --json body --jq '.body' > "$RUNNER_TEMP/notes.md"
+          python3 bin/md_to_html.py "$RUNNER_TEMP/notes.md" "$RUNNER_TEMP/notes.html"
+          # Adds <description><![CDATA[…]]></description> to the newest <item>
+          python3 bin/inject_appcast_notes.py Releases/appcast.xml "$RUNNER_TEMP/notes.html"
+
+      - name: Commit and push changes to main
+        env:
+          TAG: ${{ steps.info.outputs.tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Releases/appcast.xml
+          git commit -m "Release $TAG (automatic appcast update)"
+          git push origin main

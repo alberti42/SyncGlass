@@ -1,0 +1,9 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+    <channel>
+        <title>SyncGlass</title>
+        <link>https://raw.githubusercontent.com/alberti42/SyncGlass/main/Releases/appcast.xml</link>
+        <description>Updates of SyncGlass. .github/workflows/publish-release.yml adds an item for each published release.</description>
+        <language>en</language>
+    </channel>
+</rss>

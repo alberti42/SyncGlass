@@ -1,7 +1,7 @@
 name: Build, Notarize and Draft Release
 
 # Triggered when a vX.Y.Z or vX.Y.Z-beta.N tag is pushed (created by bin/bump_version.sh).
-# A -beta.N tag creates a draft pre-release.
+# A -beta.N tag creates a draft pre-release, which publish-release.yml skips.
 # Pipeline:
 #   1. Build a universal binary (arm64 + x86_64) with bin/build-app.sh
 #   2. Sign the app and its login helper with the Developer ID Application certificate
@@ -9,8 +9,8 @@ name: Build, Notarize and Draft Release
 #   4. Attest build provenance for the ZIP (Sigstore, verifiable with gh attestation verify)
 #   5. Create a draft GitHub release with the ZIP attached
 #
-# Publishing the draft is a manual step on GitHub. verify-release.yml then checks
-# the published ZIP.
+# Publishing the draft is a manual step on GitHub. publish-release.yml then adds
+# the release to the Sparkle appcast, and verify-release.yml checks the published ZIP.
 #
 # Secrets (repository settings > Secrets and variables > Actions):
 #   DEVELOPER_ID_CERTIFICATE_P12       base64 of the exported .p12 (certificate + private key)
@@ -129,7 +129,9 @@ jobs:
 
       # ── Build provenance ──────────────────────────────────────────────────────
       # Records a signed SLSA provenance statement: this ZIP (by its SHA-256) was
-      # built by this workflow, from this commit and tag. To verify a downloaded ZIP:
+      # built by this workflow, from this commit and tag. publish-release.yml
+      # signs the ZIP for Sparkle without changing the file, so the attestation
+      # stays valid for the file users download. To verify a downloaded ZIP:
       #   gh attestation verify SyncGlass.zip --repo alberti42/SyncGlass
       - name: Attest build provenance
         uses: actions/attest@v4
