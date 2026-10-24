@@ -6,6 +6,41 @@
         <description>Updates of SyncGlass. .github/workflows/publish-release.yml adds an item for each published release.</description>
         <language>en</language>
         <item>
+            <title>0.2.0</title>
+            <pubDate>Sat, 24 Oct 2026 15:44:33 +0000</pubDate>
+            <sparkle:version>2</sparkle:version>
+            <sparkle:shortVersionString>0.2.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/alberti42/SyncGlass/releases/download/v0.2.0/SyncGlass.zip" length="3615805" type="application/octet-stream" sparkle:edSignature="RW0wTOhAn3B9n4MNI6ybprC4pHX0u/p0mWPyASQD6x+s9TttqR0Ny8RE+nYNQdOzWlgaJ38Ibui7gLYK1RDWDQ=="/>
+        
+            <description><![CDATA[
+<h3>Added</h3>
+<ul>
+<li>Software updates through <a href="https://sparkle-project.org">Sparkle</a>. SyncGlass checks for a new version once a week. The welcome screen and Settings > General turn the weekly check on or off; Check for Updates in the panel's menu checks at once. When the weekly check finds an update, the menu item reads "Update to X.Y.Z…" until you open it.</li>
+</ul>
+<h2>Changes since v0.1.0</h2>
+<ul>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/f4d41dd">f4d41dd</a> Version bump to v0.2.0 (build 2)</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/5a7b96b">5a7b96b</a> Link the latest SyncGlass.zip at the top of the README</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/13cff13">13cff13</a> Give the appcast tests their own empty appcast</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/37539ff">37539ff</a> Fail publish-release when the new appcast item is unsigned</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/cbdcf6f">cbdcf6f</a> Release v0.1.0 (automatic appcast update)</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/cd6f8ea">cd6f8ea</a> Describe updates in the README and the changelog</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/b9cc8ef">b9cc8ef</a> Add published releases to a Sparkle appcast</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/be797c3">be797c3</a> Check for updates with Sparkle</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/6c3910d">6c3910d</a> Run the unit tests in the build workflow</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/b8037d1">b8037d1</a> Test bin/changelog.py</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/12fd5be">12fd5be</a> Test the snapshot, the menu-bar symbol, the panel text and the Recent list format</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/c9c273d">c9c273d</a> Test the path filters, the implicit-package check and size formatting</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/67e5314">67e5314</a> Reword the credits in the README</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/d84c006">d84c006</a> Add a test target with tests for ItemState</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/c45f393">c45f393</a> Move the in-flight decision into ItemState.phase</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/72de4c7">72de4c7</a> Show the notarized-download badge for runs from release tags</li>
+</ul>
+<p><strong>Full diff:</strong> https://github.com/alberti42/SyncGlass/compare/v0.1.0...v0.2.0</p>
+            ]]></description>
+        </item>
+        <item>
             <title>0.1.0</title>
             <pubDate>Sat, 24 Oct 2026 15:32:58 +0000</pubDate>
             <sparkle:version>1</sparkle:version>
