@@ -86,6 +86,12 @@ struct StatusPanel: View {
                 openSettings()
             })
             menu.addItem(ActionMenuItem("About SyncGlass", systemImage: "info.circle") { model.showAbout() })
+            if Updater.shared.isAvailable {
+                let title = Updater.shared.pendingVersion.map { "Update to \($0)…" } ?? "Check for Updates…"
+                menu.addItem(ActionMenuItem(title, systemImage: "arrow.down.circle") {
+                    Updater.shared.checkForUpdates()
+                })
+            }
             menu.addItem(.separator())
             menu.addItem(ActionMenuItem("Quit SyncGlass", systemImage: "power", key: "q") {
                 NSApp.terminate(nil)

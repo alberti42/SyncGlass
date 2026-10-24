@@ -14,7 +14,8 @@ enum Preview {
 
         open(StatusPanel(model: model).background(.regularMaterial), title: "Panel", at: NSPoint(x: 120, y: 900))
         open(SettingsView(), title: "Settings", at: NSPoint(x: 560, y: 900))
-        open(WelcomeView(choice: .constant(.iCloudDrive), openAtLogin: .constant(true), done: {}),
+        open(WelcomeView(choice: .constant(.iCloudDrive), openAtLogin: .constant(true),
+                         checkForUpdates: .constant(true), done: {}),
              title: "Welcome", at: NSPoint(x: 1140, y: 900))
         if let path = model.recents.first?.path ?? model.transfers.first {
             open(FileInfoView(path: path).frame(height: 1000), title: "File Info", at: NSPoint(x: 1640, y: 1100))

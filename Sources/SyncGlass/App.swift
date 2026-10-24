@@ -74,6 +74,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, TrackerDelegate {
         observeDefaults()
         startReachability()
         notifier.requestAuthorization()
+        Updater.shared.start()
         tracker.start()
         model.fileProgressMonitor = fileProgress
         model.update(tracker.snapshot())
@@ -125,15 +126,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, TrackerDelegate {
     }
 }
 
-/// First-launch window: what to track, and whether to open at login.
+/// First-launch window: what to track, whether to open at login, and whether to
+/// check for updates automatically.
 @MainActor
 enum WelcomeWindow {
     static func runModal() {
         var choice = WelcomeView.Choice.iCloudDrive
         var openAtLogin = true
+        var checkForUpdates = true
         let view = WelcomeView(
             choice: Binding(get: { choice }, set: { choice = $0 }),
             openAtLogin: Binding(get: { openAtLogin }, set: { openAtLogin = $0 }),
+            checkForUpdates: Binding(get: { checkForUpdates }, set: { checkForUpdates = $0 }),
             done: { NSApp.stopModal() })
         let window = NSWindow(contentViewController: NSHostingController(rootView: view))
         window.styleMask = [.titled, .fullSizeContentView]
@@ -154,6 +158,7 @@ enum WelcomeWindow {
             Prefs.store.set(Paths.iCloudDrive, forKey: PrefKey.iCloudDriveFolder)
         }
         if openAtLogin { try? LoginItem.setEnabled(true) }
+        Updater.shared.automaticallyChecks = checkForUpdates
     }
 }
 
@@ -162,6 +167,7 @@ struct WelcomeView: View {
 
     @Binding var choice: Choice
     @Binding var openAtLogin: Bool
+    @Binding var checkForUpdates: Bool
     let done: () -> Void
 
     var body: some View {
@@ -194,8 +200,11 @@ struct WelcomeView: View {
                     isSelected: choice == .everything) { choice = .everything }
             }
 
-            Toggle("Open SyncGlass at login", isOn: $openAtLogin)
-                .toggleStyle(.checkbox)
+            VStack(alignment: .leading, spacing: 6) {
+                Toggle("Open SyncGlass at login", isOn: $openAtLogin)
+                Toggle("Check for updates automatically", isOn: $checkForUpdates)
+            }
+            .toggleStyle(.checkbox)
 
             HStack {
                 Button("Quit") { NSApp.terminate(nil) }

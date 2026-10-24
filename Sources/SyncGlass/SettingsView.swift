@@ -67,6 +67,8 @@ private struct GeneralPane: View {
 
             LoginItemSection()
 
+            UpdatesSection()
+
             Section {
                 Button("Scan for Transfers…") { Scanner.scanWithPanel() }
             } footer: {
@@ -122,6 +124,27 @@ private struct LoginItemSection: View {
         }
         .onAppear { status = LoginItem.status }
         .onChange(of: scenePhase) { _, _ in status = LoginItem.status }
+    }
+}
+
+/// Sparkle's update settings (`Updater`).
+private struct UpdatesSection: View {
+    @Bindable private var updater = Updater.shared
+
+    var body: some View {
+        Section {
+            Toggle("Check for updates automatically", isOn: $updater.automaticallyChecks)
+            Button("Check Now") { updater.checkForUpdates() }
+                .disabled(!updater.canCheckForUpdates)
+        } header: {
+            Text("Updates")
+        } footer: {
+            Text(updater.isAvailable
+                ? "SyncGlass checks once a week."
+                : "Updates are only available in SyncGlass.app.")
+                .foregroundStyle(.secondary)
+        }
+        .disabled(!updater.isAvailable)
     }
 }
 

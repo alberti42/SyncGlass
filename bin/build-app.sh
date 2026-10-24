@@ -1,6 +1,7 @@
 #!/bin/sh
 # Build build/SyncGlass.app, a universal binary (arm64 + x86_64), with the login
-# helper embedded in Contents/Library/LoginItems.
+# helper embedded in Contents/Library/LoginItems and Sparkle.framework in
+# Contents/Frameworks.
 #
 # Signing: set SIGN_IDENTITY to a "Developer ID Application" identity (see
 # `security find-identity -v -p codesigning`), e.g.
@@ -29,9 +30,12 @@ BIN="$(swift build -c release $ARCH_FLAGS --show-bin-path)"
 APP=build/SyncGlass.app
 HELPER="$APP/Contents/Library/LoginItems/SyncGlassLoginHelper.app"
 rm -rf "$APP"
-mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$HELPER/Contents/MacOS"
+SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
+mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$APP/Contents/Frameworks" "$HELPER/Contents/MacOS"
 
 cp "$BIN/SyncGlass" "$APP/Contents/MacOS/SyncGlass"
+# ditto keeps the symbolic links inside the framework.
+ditto "$BIN/Sparkle.framework" "$SPARKLE"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 cp "$BIN/LoginHelper" "$HELPER/Contents/MacOS/SyncGlassLoginHelper"
 cp Resources/LoginHelper-Info.plist "$HELPER/Contents/Info.plist"
@@ -46,7 +50,15 @@ xcrun actool Resources/AppIcon.icon --compile "$APP/Contents/Resources" \
 # A secure timestamp needs Apple's timestamp server; ad-hoc signatures cannot have one.
 if [ "$IDENTITY" = "-" ]; then TIMESTAMP="--timestamp=none"; else TIMESTAMP="--timestamp"; fi
 
-# Sign inside out: the helper first, then the app that contains it.
+# Sign inside out: Sparkle's helpers, Sparkle, the login helper, then the app
+# that contains them. The order and the flags follow Sparkle's documentation
+# ("Code Signing", sparkle-project.org/documentation/sandboxing).
+SIGN="codesign --force --options runtime $TIMESTAMP --sign"
+$SIGN "$IDENTITY" "$SPARKLE/Versions/B/XPCServices/Installer.xpc"
+$SIGN "$IDENTITY" --preserve-metadata=entitlements "$SPARKLE/Versions/B/XPCServices/Downloader.xpc"
+$SIGN "$IDENTITY" "$SPARKLE/Versions/B/Autoupdate"
+$SIGN "$IDENTITY" "$SPARKLE/Versions/B/Updater.app"
+$SIGN "$IDENTITY" "$SPARKLE"
 codesign --force --options runtime "$TIMESTAMP" --sign "$IDENTITY" "$HELPER"
 codesign --force --options runtime "$TIMESTAMP" --sign "$IDENTITY" "$APP"
 codesign --verify --strict --verbose=1 "$APP"
