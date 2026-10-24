@@ -5,5 +5,36 @@
         <link>https://raw.githubusercontent.com/alberti42/SyncGlass/main/Releases/appcast.xml</link>
         <description>Updates of SyncGlass. .github/workflows/publish-release.yml adds an item for each published release.</description>
         <language>en</language>
+        <item>
+            <title>0.1.0</title>
+            <pubDate>Sat, 24 Oct 2026 15:32:58 +0000</pubDate>
+            <sparkle:version>1</sparkle:version>
+            <sparkle:shortVersionString>0.1.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/alberti42/SyncGlass/releases/download/v0.1.0/SyncGlass.zip" length="2545605" type="application/octet-stream"/>
+        
+            <description><![CDATA[
+<h3>Added</h3>
+<ul>
+<li>Menu-bar icon that shows whether iCloud Drive is idle, uploading, downloading or syncing changes from other devices. The icon is monochrome and follows light and dark mode. An optional mode fills the cloud as files finish.</li>
+<li>Panel with the files in transfer and the recently transferred files. Each file in transfer shows its upload or download percentage, read from the progress that iCloud Drive publishes. Each recent file shows when its transfer finished.</li>
+<li>File Info window with the iCloud state of a file (status, live percentage, conflicts, errors, sharing), its last recorded transfer, and every date macOS keeps for it.</li>
+<li>Notifications when uploads or downloads finish, with a minimum transfer time and a choice of sound.</li>
+<li>Include and exclude filters as regular expressions matched against the full path.</li>
+<li>Scan for Transfers, which finds files that started uploading before SyncGlass was running.</li>
+<li>History log of finished transfers.</li>
+<li>Open at login through a login helper registered with <code>SMAppService</code>.</li>
+<li>App icon: a magnifying glass over a half-filled cloud.</li>
+</ul>
+<h2>Changes in this first release</h2>
+<ul>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/6b20e94">6b20e94</a> Release v0.1.0 with the app icon</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/ad8d02d">ad8d02d</a> Add the app icon</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/0139702">0139702</a> Skip files that are not in iCloud</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/287dd2d">287dd2d</a> Version bump to v0.1.0 (build 1)</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/fc6baea">fc6baea</a> Initial release of SyncGlass</li>
+</ul>
+            ]]></description>
+        </item>
     </channel>
 </rss>
