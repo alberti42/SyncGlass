@@ -34,12 +34,15 @@ SyncGlass lists iCloud Drive's transfers in one place: how many files are in fli
 - **Scan for Transfers** finds files that started uploading before SyncGlass was running.
 - **History log** of finished transfers, which opens in Console.
 - **Open at login**, through a login helper registered with macOS.
+- **Updates** through [Sparkle](https://sparkle-project.org): SyncGlass checks for a new version once a week, or when you choose Check for Updates in the panel's menu.
 
 ## Installation
 
 1. Download `SyncGlass.zip` from the [latest release](https://github.com/alberti42/SyncGlass/releases/latest).
 2. Unzip it and move `SyncGlass.app` to the Applications folder.
-3. Open it. On the first launch, choose whether to watch iCloud Drive or all iCloud documents, and whether to open SyncGlass at login.
+3. Open it. On the first launch, choose whether to watch iCloud Drive or all iCloud documents, whether to open SyncGlass at login, and whether to check for updates automatically.
+
+SyncGlass 0.1.0 has no updater: download the next version from the releases page once. Later versions update themselves.
 
 The app is signed with a Developer ID and notarized by Apple. To check where a downloaded ZIP was built:
 
@@ -50,7 +53,8 @@ gh attestation verify SyncGlass.zip --repo alberti42/SyncGlass
 ## Permissions and privacy
 
 - macOS may ask whether SyncGlass can access iCloud Drive. SyncGlass needs that access to read the iCloud state of your files.
-- SyncGlass makes no network connections and collects no data.
+- SyncGlass connects to the network only for updates: it downloads the update feed (`Releases/appcast.xml` in this repository) from GitHub, and, when you install an update, `SyncGlass.zip` from GitHub Releases. Sparkle sends no system profile; the requests carry the names and versions of SyncGlass and Sparkle in the User-Agent header. Turn off "Check for updates automatically" in Settings > General to check only when you choose Check for Updates.
+- SyncGlass collects no data.
 - Its settings (`~/Library/Preferences/io.alberti42.SyncGlass.plist`), history log and recent-files list (`~/Library/Application Support/io.alberti42.SyncGlass/`) stay on your Mac.
 
 ## How it works
@@ -78,7 +82,7 @@ open build/SyncGlass.app
 SIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" bin/build-app.sh
 ```
 
-To use your own signing identity, also change the bundle identifiers `io.alberti42.SyncGlass` and `io.alberti42.SyncGlass.LoginHelper` in `Resources/Info.plist`, `Resources/LoginHelper-Info.plist`, `Sources/LoginHelper/main.swift`, `Sources/SyncGlass/LoginItem.swift` and `Sources/SyncGlass/Preferences.swift`.
+To use your own signing identity, also change the bundle identifiers `io.alberti42.SyncGlass` and `io.alberti42.SyncGlass.LoginHelper` in `Resources/Info.plist`, `Resources/LoginHelper-Info.plist`, `Sources/LoginHelper/main.swift`, `Sources/SyncGlass/LoginItem.swift` and `Sources/SyncGlass/Preferences.swift`. To publish your own updates, set `SUFeedURL` (your appcast) and `SUPublicEDKey` (from Sparkle's `generate_keys`) in `Resources/Info.plist`; otherwise your build offers the updates published in this repository.
 
 ## Credits
 

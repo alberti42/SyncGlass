@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Software updates through [Sparkle](https://sparkle-project.org). SyncGlass checks for a new version once a week. The welcome screen and Settings > General turn the weekly check on or off; Check for Updates in the panel's menu checks at once. When the weekly check finds an update, the menu item reads "Update to X.Y.Z…" until you open it.
+
 ## [0.1.0] - 2026-10-22
 
 ### Added
