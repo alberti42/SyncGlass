@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-24
+
 ### Added
 
 - Software updates through [Sparkle](https://sparkle-project.org). SyncGlass checks for a new version once a week. The welcome screen and Settings > General turn the weekly check on or off; Check for Updates in the panel's menu checks at once. When the weekly check finds an update, the menu item reads "Update to X.Y.Z…" until you open it.
@@ -24,5 +26,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Open at login through a login helper registered with `SMAppService`.
 - App icon: a magnifying glass over a half-filled cloud.
 
-[Unreleased]: https://github.com/alberti42/SyncGlass/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/alberti42/SyncGlass/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/alberti42/SyncGlass/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/alberti42/SyncGlass/releases/tag/v0.1.0
