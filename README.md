@@ -44,8 +44,6 @@ SyncGlass lists iCloud Drive's transfers in one place: how many files are in fli
 2. Unzip it and move `SyncGlass.app` to the Applications folder.
 3. Open it. On the first launch, choose whether to watch iCloud Drive or all iCloud documents, whether to open SyncGlass at login, and whether to check for updates automatically.
 
-SyncGlass 0.1.0 has no updater: download the next version from the releases page once. Later versions update themselves.
-
 The app is signed with a Developer ID and notarized by Apple. To check where a downloaded ZIP was built:
 
 ```sh
