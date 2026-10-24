@@ -11,6 +11,8 @@ Free and open source (GPL-3.0). Requires macOS 26 or later; runs natively on App
 
 SyncGlass lists iCloud Drive's transfers in one place: how many files are in flight, each file's percentage, and when each transfer finished.
 
+<p align="left"><img src="Images/Screenshot.png" width="416" alt="The SyncGlass panel below its menu-bar icon, with the Recent list of files uploaded and synced in the last 31 seconds"></p>
+
 ---
 
 ## Table of Contents
