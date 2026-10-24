@@ -6,6 +6,29 @@
         <description>Updates of SyncGlass. .github/workflows/publish-release.yml adds an item for each published release.</description>
         <language>en</language>
         <item>
+            <title>0.2.1</title>
+            <pubDate>Sat, 24 Oct 2026 16:01:22 +0000</pubDate>
+            <sparkle:version>3</sparkle:version>
+            <sparkle:shortVersionString>0.2.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/alberti42/SyncGlass/releases/download/v0.2.1/SyncGlass.zip" length="3616283" type="application/octet-stream" sparkle:edSignature="sG+xx9pDvk61Vyxq3NBglNExZnyG6DarTe4ABNvVLgl3hSSwjZNrxB+AjyKhyevXcubLwgDVc21NCfDNYvfbDw=="/>
+        
+            <description><![CDATA[
+<h3>Changed</h3>
+<ul>
+<li>The panel's gear button opens SyncGlass's Settings. The button that opens iCloud's page in System Settings shows a cloud.</li>
+</ul>
+<h2>Changes since v0.2.0</h2>
+<ul>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/a3e1a67">a3e1a67</a> Version bump to v0.2.1 (build 3)</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/b3fde01">b3fde01</a> Open SyncGlass Settings from the gear button in the panel</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/725cfbc">725cfbc</a> Remove the note about updating from 0.1.0</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/e0b8b58">e0b8b58</a> Release v0.2.0 (automatic appcast update)</li>
+</ul>
+<p><strong>Full diff:</strong> https://github.com/alberti42/SyncGlass/compare/v0.2.0...v0.2.1</p>
+            ]]></description>
+        </item>
+        <item>
             <title>0.2.0</title>
             <pubDate>Sat, 24 Oct 2026 15:44:33 +0000</pubDate>
             <sparkle:version>2</sparkle:version>
