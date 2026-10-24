@@ -5,6 +5,8 @@
 
 **A menu-bar app for macOS that shows which files iCloud Drive is uploading and downloading.**
 
+**[Download SyncGlass.zip](https://github.com/alberti42/SyncGlass/releases/latest/download/SyncGlass.zip)** (latest release, signed and notarized). See [Installation](#installation).
+
 Free and open source (GPL-3.0). Requires macOS 26 or later; runs natively on Apple silicon and Intel Macs.
 
 SyncGlass lists iCloud Drive's transfers in one place: how many files are in flight, each file's percentage, and when each transfer finished.
@@ -38,7 +40,7 @@ SyncGlass lists iCloud Drive's transfers in one place: how many files are in fli
 
 ## Installation
 
-1. Download `SyncGlass.zip` from the [latest release](https://github.com/alberti42/SyncGlass/releases/latest).
+1. Download [`SyncGlass.zip`](https://github.com/alberti42/SyncGlass/releases/latest/download/SyncGlass.zip) from the [latest release](https://github.com/alberti42/SyncGlass/releases/latest).
 2. Unzip it and move `SyncGlass.app` to the Applications folder.
 3. Open it. On the first launch, choose whether to watch iCloud Drive or all iCloud documents, whether to open SyncGlass at login, and whether to check for updates automatically.
 
