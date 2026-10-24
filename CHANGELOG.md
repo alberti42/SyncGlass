@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-24
+
 ### Changed
 
 - The panel's gear button opens SyncGlass's Settings. The button that opens iCloud's page in System Settings shows a cloud.
@@ -30,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Open at login through a login helper registered with `SMAppService`.
 - App icon: a magnifying glass over a half-filled cloud.
 
-[Unreleased]: https://github.com/alberti42/SyncGlass/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/alberti42/SyncGlass/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/alberti42/SyncGlass/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/alberti42/SyncGlass/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/alberti42/SyncGlass/releases/tag/v0.1.0
