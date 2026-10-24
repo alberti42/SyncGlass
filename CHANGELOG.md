@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- The panel's gear button opens SyncGlass's Settings. The button that opens iCloud's page in System Settings shows a cloud.
+
 ## [0.2.0] - 2026-10-24
 
 ### Added

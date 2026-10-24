@@ -116,7 +116,11 @@ struct StatusPanel: View {
                 HStack(spacing: 6) {
                     FooterButton(title: "Open iCloud Drive", systemImage: "folder") { model.openICloudDrive() }
                     FooterButton(title: "Open iCloud.com", systemImage: "safari") { model.openICloudOnline() }
-                    FooterButton(title: "iCloud Settings", systemImage: "gearshape") { model.openICloudSettings() }
+                    FooterButton(title: "iCloud Settings", systemImage: "icloud") { model.openICloudSettings() }
+                    FooterButton(title: "SyncGlass Settings", systemImage: "gearshape") {
+                        NSApp.activate()
+                        openSettings()
+                    }
                 }
             }
         }
