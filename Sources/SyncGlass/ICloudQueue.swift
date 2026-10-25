@@ -184,6 +184,8 @@ final class ICloudQueueMonitor {
     private(set) var stuck: Set<String> = []
     /// Upload or download errors of the paths in transfer.
     private(set) var errors: [String: String] = [:]
+    /// When the last check finished; nil until the first one has.
+    private(set) var lastCheck: Date?
 
     /// File Provider identifier → path, so each item is resolved once.
     @ObservationIgnored private var resolved: [String: String] = [:]
@@ -210,6 +212,7 @@ final class ICloudQueueMonitor {
         stuck = []
         errors = [:]
         lastBytes = [:]
+        lastCheck = nil
     }
 
     private func update(progress: FileProgressMonitor) async {
@@ -225,6 +228,7 @@ final class ICloudQueueMonitor {
             byPath[path] = item
         }
         items = byPath
+        defer { lastCheck = Date() }
 
         guard let tracker = Tracker.shared else { return }
         let snapshot = tracker.snapshot()

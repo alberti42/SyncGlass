@@ -12,6 +12,9 @@ struct StatusPanel: View {
             if model.snapshot.status == .transferring && model.snapshot.totalTransferCount > 0 {
                 progress
             }
+            if model.isWatchingForStuckFiles {
+                WatchBar(model: model)
+            }
             Picker("View", selection: $model.tab) {
                 Text("Transfers").tag(StatusModel.Tab.transfers)
                 Text("Recent").tag(StatusModel.Tab.recent)
@@ -239,6 +242,49 @@ private struct StatusBadge: View {
         case .syncing: return .teal
         case .transferring: return .accentColor
         }
+    }
+}
+
+/// Shown while Watch for Stuck Files is on: when SyncGlass last read iCloud's
+/// queue, how many files are stuck, and Stop Watching.
+private struct WatchBar: View {
+    let model: StatusModel
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "exclamationmark.triangle")
+                .foregroundStyle(.orange)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 1) {
+                Text("Watching for stuck files").font(.callout.weight(.medium))
+                // Refresh "Checked 20 sec. ago" while the panel stays open.
+                TimelineView(.periodic(from: .now, by: 10)) { context in
+                    Text(detail(now: context.date))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                }
+            }
+            Spacer(minLength: 4)
+            Button("Stop Watching") { model.toggleStuckFileWatch() }
+                .buttonStyle(.glass)
+                .controlSize(.small)
+                .help("Stop watching for stuck files")
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .glassEffect(.regular.tint(.orange.opacity(0.15)), in: .rect(cornerRadius: 12))
+    }
+
+    /// "Checked 20 sec. ago · none stuck"
+    private func detail(now: Date) -> String {
+        guard let last = model.lastStuckFileCheck else { return "Checking…" }
+        let f = RelativeDateTimeFormatter()
+        f.dateTimeStyle = .named   // "now"
+        f.unitsStyle = .short
+        let n = model.stuckCount
+        let found = n == 0 ? "none stuck" : "\(n) stuck"
+        return "Checked \(f.localizedString(for: min(last, now), relativeTo: now)) · \(found)"
     }
 }
 
