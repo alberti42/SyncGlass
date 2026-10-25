@@ -146,6 +146,13 @@ final class Tracker: @unchecked Sendable {
         }
     }
 
+    /// Queue paths that FSEvents did not report, such as the items in iCloud's
+    /// queue. They go through the same checks as changed paths.
+    func queuePaths(_ paths: [String]) {
+        guard !paths.isEmpty else { return }
+        streamQueue.async { [weak self] in paths.forEach { self?.queueFile($0) } }
+    }
+
     /// Stop Tracking in the transfer list moves the path to completed.
     func removeTransfers(_ paths: [String]) {
         withState {
