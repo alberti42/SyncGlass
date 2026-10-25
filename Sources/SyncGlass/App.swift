@@ -54,6 +54,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, TrackerDelegate {
             print("login item: \(LoginItem.status.rawValue) (\(LoginItem.statusDescription))")
             exit(0)
         }
+        if CommandLine.arguments.contains("--queue-status") {
+            printQueueStatus()
+            return
+        }
 
         Prefs.registerDefaults()
 
@@ -80,8 +84,28 @@ final class AppDelegate: NSObject, NSApplicationDelegate, TrackerDelegate {
         model.update(tracker.snapshot())
 
         #if DEBUG
+        if CommandLine.arguments.contains("--watch-stuck-files") { model.toggleStuckFileWatch() }
         if CommandLine.arguments.contains("--preview") { Preview.show(model: model) }
         #endif
+    }
+
+    /// `--queue-status`: prints the items in iCloud Drive's queue with the files
+    /// they resolve to, and exits.
+    private func printQueueStatus() {
+        Task {
+            let now = Date()
+            let output = await Task.detached { ICloudQueue.readStatus() }.value
+            let items = ICloudQueue.parse(output ?? "", now: now)
+            print("\(items.count) items in iCloud Drive's queue")
+            for item in items {
+                let path = await ICloudQueue.resolve(item) ?? "not found: \(item.folder) \(item.name)"
+                var fields = [item.state ?? "-", item.operation?.kind ?? "-"]
+                if let attempts = item.operation?.attempts { fields.append("attempts \(attempts)") }
+                if let last = item.operation?.lastAttempt { fields.append("last attempt \(Int(now.timeIntervalSince(last))) s ago") }
+                print("\(fields.joined(separator: ", ")): \(path)")
+            }
+            exit(0)
+        }
     }
 
     // MARK: TrackerDelegate
