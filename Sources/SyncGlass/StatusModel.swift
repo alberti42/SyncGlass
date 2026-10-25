@@ -88,6 +88,7 @@ final class StatusModel {
             monitor.stop()
         } else if let fileProgressMonitor {
             monitor.start(progress: fileProgressMonitor)
+            tab = .transfers
         }
     }
 
@@ -105,8 +106,10 @@ final class StatusModel {
 
     var transfers: [String] {
         guard !snapshot.isFinishedTransferring else { return [] }
-        // Sort by name without extension, in Finder order.
+        // Stuck files first, then by name without extension, in Finder order.
+        let stuck = ICloudQueueMonitor.shared.stuck
         return snapshot.totalTransfers.sorted {
+            if stuck.contains($0) != stuck.contains($1) { return stuck.contains($0) }
             let a = (($0 as NSString).lastPathComponent as NSString).deletingPathExtension
             let b = (($1 as NSString).lastPathComponent as NSString).deletingPathExtension
             return a.localizedStandardCompare(b) == .orderedAscending
