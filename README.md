@@ -37,6 +37,7 @@ SyncGlass lists iCloud Drive's transfers in one place: how many files are in fli
 - **Notifications** when uploads or downloads finish. Short transfers can be left out, and the sound can be chosen.
 - **Filters**: include and exclude regular expressions, matched against the full path.
 - **Scan for Transfers** finds files that started uploading before SyncGlass was running.
+- **Watch for Stuck Files** shows which files iCloud Drive is stuck on. See [Troubleshooting](#troubleshooting).
 - **History log** of finished transfers, which opens in Console.
 - **Open at login**, through a login helper registered with macOS.
 - **Updates** through [Sparkle](https://sparkle-project.org): SyncGlass checks for a new version once a week, or when you choose Check for Updates in the panel's menu.
@@ -62,11 +63,12 @@ gh attestation verify SyncGlass.zip --repo alberti42/SyncGlass
 
 ## How it works
 
-SyncGlass uses public macOS APIs only:
+SyncGlass uses public macOS APIs, plus one undocumented command while Watch for Stuck Files is on:
 
 - **FSEvents** reports which files change in the watched folder (`~/Library/Mobile Documents`, or only its iCloud Drive part).
 - **URL resource values** (`ubiquitousItemIsUploaded`, `ubiquitousItemIsUploading`, `ubiquitousItemIsDownloading`, …) give each file's iCloud state. A file stays in the Transfers list until iCloud reports it uploaded and no longer downloading.
 - **`Progress.addSubscriber(forFileURL:)`** receives the progress objects that iCloud Drive publishes for each file it transfers. They carry the byte counts behind the percentages.
+- **`brctl status`** (only while Watch for Stuck Files is on) lists the items iCloud Drive has not synced yet, with the time of the last upload attempt. It abbreviates names; SyncGlass identifies each file by its File Provider identifier (`NSFileProviderManager.getIdentifierForUserVisibleFile(at:)`). `brctl` is undocumented, so a macOS update can change its output.
 
 macOS records no date for when a file synced. The times in the Recent list are the moments SyncGlass saw a transfer finish, so they exist only for transfers it watched.
 
@@ -74,17 +76,25 @@ macOS records no date for when a file synced. The times in the Recent list are t
 
 SyncGlass shows iCloud Drive's transfers while they happen. It does not download files that are only in iCloud, and it does not remove local copies. Finder does both: right-click a file and choose **Download Now** or **Remove Download**. To reach a file listed in SyncGlass, click its Show in Finder button or double-click it.
 
+When iCloud Drive seems stuck, choose **Watch for Stuck Files** in the panel's ⋯ menu. SyncGlass then reads iCloud Drive's queue at once and every minute until you turn it off. Files that iCloud has not synced appear in Transfers, also those that started before SyncGlass was running. A file is marked stuck, with a warning symbol and "Waiting · last attempt 4 min ago", when iCloud reports an upload or download error for it, or when it is in iCloud's queue and its upload has not progressed for 2 minutes. Get Info shows the file's entry in the queue and the error. You can turn the watch on after a transfer got stuck: the queue shows its state at the moment SyncGlass reads it.
+
+To print the queue in Terminal:
+
+```sh
+/Applications/SyncGlass.app/Contents/MacOS/SyncGlass --queue-status
+```
+
 To see what iCloud Drive itself reports, read its log in Terminal. Write the full path `/usr/bin/log`: in zsh, the default shell on macOS, `log` is also the name of a built-in command.
 
 ```sh
 # the last 10 minutes
-/usr/bin/log show --last 10m --style compact --predicate 'process == "bird" OR subsystem == "com.apple.FileProvider"'
+/usr/bin/log show --last 10m --style compact --predicate 'process == "bird" OR process == "cloudd" OR subsystem == "com.apple.FileProvider"'
 
 # live, until you press Control-C
-/usr/bin/log stream --style compact --predicate 'process == "bird" OR subsystem == "com.apple.FileProvider"'
+/usr/bin/log stream --style compact --predicate 'process == "bird" OR process == "cloudd" OR subsystem == "com.apple.FileProvider"'
 ```
 
-`bird` is the iCloud Drive daemon; `com.apple.FileProvider` is the macOS framework through which iCloud Drive syncs files.
+`bird` is the iCloud Drive daemon; `cloudd` transfers the data to Apple's servers and logs network errors, such as `NSURLErrorDomain -1001` (request timed out); `com.apple.FileProvider` is the macOS framework through which iCloud Drive syncs files. The log does not name the files in full: `bird` writes `<private>` in their place, and FileProvider abbreviates them (`o{10}t.bin` for `offline-test.bin`).
 
 ## Building from source
 
