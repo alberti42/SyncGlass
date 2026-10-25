@@ -21,6 +21,7 @@ SyncGlass lists iCloud Drive's transfers in one place: how many files are in fli
 - [Installation](#installation)
 - [Permissions and privacy](#permissions-and-privacy)
 - [How it works](#how-it-works)
+- [Troubleshooting](#troubleshooting)
 - [Building from source](#building-from-source)
 - [Credits](#credits)
 - [License](#license)
@@ -68,6 +69,22 @@ SyncGlass uses public macOS APIs only:
 - **`Progress.addSubscriber(forFileURL:)`** receives the progress objects that iCloud Drive publishes for each file it transfers. They carry the byte counts behind the percentages.
 
 macOS records no date for when a file synced. The times in the Recent list are the moments SyncGlass saw a transfer finish, so they exist only for transfers it watched.
+
+## Troubleshooting
+
+SyncGlass shows iCloud Drive's transfers while they happen. It does not download files that are only in iCloud, and it does not remove local copies. Finder does both: right-click a file and choose **Download Now** or **Remove Download**. To reach a file listed in SyncGlass, click its Show in Finder button or double-click it.
+
+To see what iCloud Drive itself reports, read its log in Terminal. Write the full path `/usr/bin/log`: in zsh, the default shell on macOS, `log` is also the name of a built-in command.
+
+```sh
+# the last 10 minutes
+/usr/bin/log show --last 10m --style compact --predicate 'process == "bird" OR subsystem == "com.apple.FileProvider"'
+
+# live, until you press Control-C
+/usr/bin/log stream --style compact --predicate 'process == "bird" OR subsystem == "com.apple.FileProvider"'
+```
+
+`bird` is the iCloud Drive daemon; `com.apple.FileProvider` is the macOS framework through which iCloud Drive syncs files.
 
 ## Building from source
 
