@@ -99,6 +99,8 @@ final class StatusModel {
 
     var lastStuckFileCheck: Date? { ICloudQueueMonitor.shared.lastCheck }
 
+    var stuckFileWatchStart: Date? { ICloudQueueMonitor.shared.startDate }
+
     func queueItem(for path: String) -> QueueItem? { ICloudQueueMonitor.shared.items[path] }
 
     func transferError(for path: String) -> String? { ICloudQueueMonitor.shared.errors[path] }

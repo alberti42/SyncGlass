@@ -186,6 +186,9 @@ final class ICloudQueueMonitor {
     private(set) var errors: [String: String] = [:]
     /// When the last check finished; nil until the first one has.
     private(set) var lastCheck: Date?
+    /// When the watch was turned on. A file without an error can count as stuck
+    /// only `ICloudQueue.stallTime` after this.
+    private(set) var startDate: Date?
 
     /// File Provider identifier → path, so each item is resolved once.
     @ObservationIgnored private var resolved: [String: String] = [:]
@@ -196,6 +199,7 @@ final class ICloudQueueMonitor {
     func start(progress: FileProgressMonitor) {
         task?.cancel()
         isWatching = true
+        startDate = Date()
         task = Task { [weak self] in
             while !Task.isCancelled {
                 await self?.update(progress: progress)
@@ -213,6 +217,7 @@ final class ICloudQueueMonitor {
         errors = [:]
         lastBytes = [:]
         lastCheck = nil
+        startDate = nil
     }
 
     private func update(progress: FileProgressMonitor) async {

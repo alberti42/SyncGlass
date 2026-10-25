@@ -249,6 +249,7 @@ private struct StatusBadge: View {
 /// queue and how many files are stuck. The ⋯ menu turns the watch off.
 private struct WatchBar: View {
     let model: StatusModel
+    @State private var showsInfo = false
 
     var body: some View {
         HStack(spacing: 10) {
@@ -265,21 +266,52 @@ private struct WatchBar: View {
                         .monospacedDigit()
                 }
             }
-            Spacer(minLength: 0)
+            Spacer(minLength: 4)
+            Button {
+                showsInfo.toggle()
+            } label: {
+                Image(systemName: "info")
+                    .font(.caption.weight(.semibold))
+                    .frame(width: 18, height: 18)
+            }
+            .buttonStyle(.glass)
+            .buttonBorderShape(.circle)
+            .controlSize(.small)
+            .help("About Watch for Stuck Files")
+            .accessibilityLabel("About Watch for Stuck Files")
+            .popover(isPresented: $showsInfo, arrowEdge: .bottom) { info }
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 7)
         .glassEffect(.regular.tint(.orange.opacity(0.15)), in: .rect(cornerRadius: 12))
     }
 
-    /// "Checked 20 sec. ago · none stuck"
+    private var info: some View {
+        let minutes = Int(ICloudQueue.stallTime / 60)
+        return VStack(alignment: .leading, spacing: 8) {
+            Text("Watching for stuck files").font(.headline)
+            Text("Turn this on when you have reason to believe that iCloud Drive is stuck on a file, and off once you know which file it is.")
+            Text("SyncGlass reads iCloud Drive's queue at once and then every minute.")
+            Text("A file is marked stuck when iCloud reports an upload or download error for it, or when it is in iCloud's queue and its upload has not progressed for \(minutes) minutes. So a file without an error appears as stuck only after \(minutes) minutes of watching.")
+            Text("Choose Watch for Stuck Files in the ⋯ menu again to stop.")
+                .foregroundStyle(.secondary)
+        }
+        .font(.callout)
+        .fixedSize(horizontal: false, vertical: true)
+        .frame(width: 300, alignment: .leading)
+        .padding(16)
+    }
+
+    /// "Checked 20 sec. ago · none stuck", with "so far" while the watch has run
+    /// for less than `ICloudQueue.stallTime`.
     private func detail(now: Date) -> String {
         guard let last = model.lastStuckFileCheck else { return "Checking…" }
         let f = RelativeDateTimeFormatter()
         f.dateTimeStyle = .named   // "now"
         f.unitsStyle = .short
         let n = model.stuckCount
-        let found = n == 0 ? "none stuck" : "\(n) stuck"
+        let early = model.stuckFileWatchStart.map { now.timeIntervalSince($0) < ICloudQueue.stallTime } ?? false
+        let found = n == 0 ? (early ? "none stuck so far" : "none stuck") : "\(n) stuck"
         return "Checked \(f.localizedString(for: min(last, now), relativeTo: now)) · \(found)"
     }
 }
