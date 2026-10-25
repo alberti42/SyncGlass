@@ -246,7 +246,7 @@ private struct StatusBadge: View {
 }
 
 /// Shown while Watch for Stuck Files is on: when SyncGlass last read iCloud's
-/// queue, how many files are stuck, and Stop Watching.
+/// queue and how many files are stuck. The ⋯ menu turns the watch off.
 private struct WatchBar: View {
     let model: StatusModel
 
@@ -265,11 +265,7 @@ private struct WatchBar: View {
                         .monospacedDigit()
                 }
             }
-            Spacer(minLength: 4)
-            Button("Stop Watching") { model.toggleStuckFileWatch() }
-                .buttonStyle(.glass)
-                .controlSize(.small)
-                .help("Stop watching for stuck files")
+            Spacer(minLength: 0)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 7)
