@@ -24,7 +24,8 @@ final class StatusModel {
     @ObservationIgnored private var diskUsageTask: Task<Void, Never>?
 
     var menuBarImage: NSImage {
-        MenuBarIcon.image(for: snapshot, isReachable: isReachable, showsProgress: showsProgressInMenuBar)
+        MenuBarIcon.image(for: snapshot, isReachable: isReachable, showsProgress: showsProgressInMenuBar,
+                          stuckCount: stuckCount)
     }
 
     /// Switch to Transfers when transfers start and back to Recent when they end.

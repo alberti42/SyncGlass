@@ -43,6 +43,12 @@ import Testing
 
     @Test func offlineWinsOverEveryStatus() {
         #expect(MenuBarIcon.symbol(for: snapshot(.transferring, transfers: 1), isReachable: false) == .offline)
+        #expect(MenuBarIcon.symbol(for: snapshot(.transferring, transfers: 1), isReachable: false, stuckCount: 1) == .offline)
+    }
+
+    @Test func stuckWinsOverTransfers() {
+        #expect(MenuBarIcon.symbol(for: snapshot(.transferring, transfers: 2), isReachable: true, stuckCount: 1) == .stuck)
+        #expect(MenuBarIcon.symbol(for: snapshot(.transferring, transfers: 2), isReachable: true, stuckCount: 0) == .uploading)
     }
 
     @Test func idleAndSyncing() {

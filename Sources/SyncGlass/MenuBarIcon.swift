@@ -13,12 +13,16 @@ enum MenuBarIcon {
         case downloading = "icloud.and.arrow.down"
         case syncing = "arrow.clockwise.icloud"
         case offline = "icloud.slash"
+        /// Watch for Stuck Files found a stuck file.
+        case stuck = "exclamationmark.icloud"
     }
 
     private static let configuration = NSImage.SymbolConfiguration(pointSize: 15, weight: .medium)
 
-    static func symbol(for snapshot: TrackerSnapshot, isReachable: Bool) -> Symbol {
+    /// Offline wins over stuck: it explains why transfers stall.
+    static func symbol(for snapshot: TrackerSnapshot, isReachable: Bool, stuckCount: Int = 0) -> Symbol {
         guard isReachable else { return .offline }
+        if stuckCount > 0 { return .stuck }
         switch snapshot.status {
         case .idle: return .idle
         case .syncing: return .syncing
@@ -26,21 +30,27 @@ enum MenuBarIcon {
         }
     }
 
-    static func image(for snapshot: TrackerSnapshot, isReachable: Bool, showsProgress: Bool) -> NSImage {
-        let symbol = symbol(for: snapshot, isReachable: isReachable)
+    static func image(for snapshot: TrackerSnapshot, isReachable: Bool, showsProgress: Bool,
+                      stuckCount: Int = 0) -> NSImage {
+        let symbol = symbol(for: snapshot, isReachable: isReachable, stuckCount: stuckCount)
         let image: NSImage
-        if showsProgress && isReachable && snapshot.status == .transferring && snapshot.totalTransferCount > 1 {
+        if showsProgress && symbol != .stuck && isReachable && snapshot.status == .transferring
+            && snapshot.totalTransferCount > 1
+        {
             image = progressImage(progress: snapshot.progress)
         } else {
             image = symbolImage(symbol.rawValue)
         }
         image.isTemplate = true
-        image.accessibilityDescription = accessibilityLabel(for: snapshot, isReachable: isReachable)
+        image.accessibilityDescription = accessibilityLabel(for: snapshot, isReachable: isReachable,
+                                                            stuckCount: stuckCount)
         return image
     }
 
-    static func accessibilityLabel(for snapshot: TrackerSnapshot, isReachable: Bool) -> String {
-        isReachable ? "SyncGlass: \(StatusModel.detailText(for: snapshot))" : "SyncGlass: offline"
+    static func accessibilityLabel(for snapshot: TrackerSnapshot, isReachable: Bool, stuckCount: Int = 0) -> String {
+        guard isReachable else { return "SyncGlass: offline" }
+        if stuckCount > 0 { return "SyncGlass: \(stuckCount) stuck \(stuckCount == 1 ? "file" : "files")" }
+        return "SyncGlass: \(StatusModel.detailText(for: snapshot))"
     }
 
     private static func symbolImage(_ name: String) -> NSImage {

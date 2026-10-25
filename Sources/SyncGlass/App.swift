@@ -34,7 +34,8 @@ private struct MenuBarLabel: View {
 
     var body: some View {
         Image(nsImage: model.menuBarImage)
-            .accessibilityLabel(MenuBarIcon.accessibilityLabel(for: model.snapshot, isReachable: model.isReachable))
+            .accessibilityLabel(MenuBarIcon.accessibilityLabel(for: model.snapshot, isReachable: model.isReachable,
+                                                               stuckCount: model.stuckCount))
     }
 }
 
