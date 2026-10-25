@@ -78,6 +78,25 @@ final class StatusModel {
         progressTask = nil
     }
 
+    // MARK: Stuck files
+
+    var isWatchingForStuckFiles: Bool { ICloudQueueMonitor.shared.isWatching }
+
+    func toggleStuckFileWatch() {
+        let monitor = ICloudQueueMonitor.shared
+        if monitor.isWatching {
+            monitor.stop()
+        } else if let fileProgressMonitor {
+            monitor.start(progress: fileProgressMonitor)
+        }
+    }
+
+    func isStuck(_ path: String) -> Bool { ICloudQueueMonitor.shared.stuck.contains(path) }
+
+    func queueItem(for path: String) -> QueueItem? { ICloudQueueMonitor.shared.items[path] }
+
+    func transferError(for path: String) -> String? { ICloudQueueMonitor.shared.errors[path] }
+
     // MARK: Lists
 
     var transfers: [String] {

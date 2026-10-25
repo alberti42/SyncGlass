@@ -77,6 +77,11 @@ struct StatusPanel: View {
             menu.addItem(ActionMenuItem("Scan for Transfers…", systemImage: "magnifyingglass") {
                 Scanner.scanConfiguredFolder()
             })
+            let watch = ActionMenuItem("Watch for Stuck Files", systemImage: "exclamationmark.triangle") {
+                model.toggleStuckFileWatch()
+            }
+            watch.state = model.isWatchingForStuckFiles ? .on : .off
+            menu.addItem(watch)
             menu.addItem(.separator())
             menu.addItem(ActionMenuItem("Open History Log", systemImage: "doc.text") { model.openLog() })
             menu.addItem(ActionMenuItem("Clear History…", systemImage: "trash") { model.clearHistory() })
@@ -256,6 +261,9 @@ private struct TransferList: View {
                             isComplete: model.snapshot.completedTransfers.contains(path),
                             isDownloading: model.snapshot.downloadingTransfers.contains(path),
                             progress: model.progress(for: path),
+                            isStuck: model.isStuck(path),
+                            lastAttempt: model.queueItem(for: path)?.operation?.lastAttempt,
+                            error: model.transferError(for: path),
                             model: model)
                     }
                 }
@@ -293,13 +301,20 @@ private struct TransferRow: View {
     let isDownloading: Bool
     /// Byte progress from `FileProgressMonitor`; nil when iCloud has not published any.
     let progress: FileProgress?
+    /// From Watch for Stuck Files (`ICloudQueueMonitor`).
+    let isStuck: Bool
+    let lastAttempt: Date?
+    let error: String?
     let model: StatusModel
     @State private var hovering = false
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         FileRow(path: path, hovering: hovering) {
-            Text(detail).monospacedDigit()
+            // Refresh "last attempt 4 min ago" while the panel stays open.
+            TimelineView(.periodic(from: .now, by: 30)) { context in
+                Text(stuckNow ? stuckDetail(now: context.date) : detail).monospacedDigit()
+            }
         } trailing: {
             if hovering {
                 HStack(spacing: 4) {
@@ -313,6 +328,11 @@ private struct TransferRow: View {
                 Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(.green)
                     .accessibilityLabel("Complete")
+            } else if stuckNow {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.orange)
+                    .help(error ?? "No progress for \(Int(ICloudQueue.stallTime / 60)) minutes")
+                    .accessibilityLabel("Stuck")
             } else if let progress {
                 ProgressView(value: progress.fraction)
                     .progressViewStyle(.circular)
@@ -336,6 +356,17 @@ private struct TransferRow: View {
         case .uploading?: return false
         case nil: return isDownloading
         }
+    }
+
+    private var stuckNow: Bool { isStuck && !isComplete }
+
+    /// "Waiting · last attempt 4 min ago"
+    private func stuckDetail(now: Date) -> String {
+        guard let lastAttempt else { return "Waiting" }
+        let f = RelativeDateTimeFormatter()
+        f.dateTimeStyle = .named   // "now", "yesterday"
+        f.unitsStyle = .short
+        return "Waiting · last attempt \(f.localizedString(for: min(lastAttempt, now), relativeTo: now))"
     }
 
     private func percent(_ p: FileProgress) -> String {

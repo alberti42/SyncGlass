@@ -129,6 +129,8 @@ final class FileInfoModel {
     private(set) var progress: FileProgress?
     private(set) var recorded: RecentTransfer?
     private(set) var isTracked = false
+    /// From Watch for Stuck Files; nil while it is off.
+    private(set) var queue: (item: QueueItem?, isStuck: Bool)?
 
     @ObservationIgnored private var task: Task<Void, Never>?
     @ObservationIgnored private let monitor = FileProgressMonitor()
@@ -162,6 +164,8 @@ final class FileInfoModel {
             recorded = snapshot.recentTransfers.first { $0.path == path }
             isTracked = snapshot.totalTransfers.contains(path) && !snapshot.completedTransfers.contains(path)
         }
+        let monitor = ICloudQueueMonitor.shared
+        queue = monitor.isWatching ? (monitor.items[path], monitor.stuck.contains(path)) : nil
     }
 }
 
@@ -224,6 +228,36 @@ struct FileInfoView: View {
                 LabeledContent("Shared", value: sharedText)
                 if let owner = d.sharedOwner { LabeledContent("Owner", value: owner) }
                 if let editor = d.sharedLastEditor { LabeledContent("Last edited by", value: editor) }
+            }
+
+            if let queue = model.queue {
+                Section {
+                    if let item = queue.item {
+                        LabeledContent("State", value: item.state ?? "—")
+                        if let op = item.operation {
+                            LabeledContent("Operation", value: op.kind)
+                            if let attempts = op.attempts { LabeledContent("Attempts", value: "\(attempts)") }
+                            if let last = op.lastAttempt {
+                                LabeledContent("Last attempt") { DateText(prefix: nil, date: last) }
+                            }
+                        }
+                    } else {
+                        LabeledContent("State", value: "Not in the queue")
+                    }
+                    if queue.isStuck {
+                        LabeledContent("Stuck") {
+                            Label(d.uploadError ?? d.downloadError
+                                  ?? "No progress for \(Int(ICloudQueue.stallTime / 60)) minutes",
+                                  systemImage: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+                        }
+                    }
+                } header: {
+                    Text("iCloud Queue")
+                } footer: {
+                    Text("Read with brctl status every minute while Watch for Stuck Files is on.")
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Section {
