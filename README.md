@@ -84,6 +84,14 @@ To print the queue in Terminal:
 /Applications/SyncGlass.app/Contents/MacOS/SyncGlass --queue-status
 ```
 
+If a file stays stuck for a reason other than a missing network connection, please [open an issue](https://github.com/alberti42/SyncGlass/issues) and attach the output of `brctl status`, saved while the file is stuck:
+
+```sh
+brctl status > ~/Desktop/brctl-status.txt
+```
+
+SyncGlass reads only some of its fields, and real cases show which others matter. The output shows folder paths in full and issues are public, so read the file before you attach it.
+
 To see what iCloud Drive itself reports, read its log in Terminal. Write the full path `/usr/bin/log`: in zsh, the default shell on macOS, `log` is also the name of a built-in command.
 
 ```sh
