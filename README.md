@@ -90,7 +90,9 @@ If a file stays stuck for a reason other than a missing network connection, plea
 brctl status > ~/Desktop/brctl-status.txt
 ```
 
-SyncGlass reads only some of its fields, and real cases show which others matter. The output shows folder paths in full and issues are public, so read the file before you attach it.
+So far we could test only one cause of a stuck file: a missing network connection, which is easy to reproduce. Other causes, such as full iCloud storage or a stuck download, are hard to reproduce. If you send us the output of `brctl status` from a real case, we can improve Watch for Stuck Files to recognize it. Thank you!
+
+`brctl status` abbreviates file names (`o{10}t.bin` for `offline-test.bin`) but shows folder paths in full. Issues are public, so read the file before you attach it, and replace any folder names you don't want to make public.
 
 To see what iCloud Drive itself reports, read its log in Terminal. Write the full path `/usr/bin/log`: in zsh, the default shell on macOS, `log` is also the name of a built-in command.
 
