@@ -6,11 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### Changed
-
-- Transfers that were running when SyncGlass quit, or that started while it was not running, appear in Transfers after the next launch. SyncGlass saves the files in transfer and asks macOS (FSEvents) for the changes made since it last ran. Scan for Transfers is rarely needed and has moved from the panel's ⋯ menu to Settings > Monitoring only.
-- Settings has a Monitoring tab with the folder, the check frequency, hidden files, symbolic links and Scan for Transfers. General keeps the menu bar, startup and updates.
-
 ## [0.3.0] - 2026-10-27
 
 ### Added
@@ -18,6 +13,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Watch for Stuck Files in the panel's ⋯ menu, off by default. While it is on, SyncGlass reads iCloud Drive's queue with `brctl status` every minute. A bar below the panel's header shows when SyncGlass last checked and how many files are stuck; its ⓘ button explains the watch and how to report a stuck file. The menu-bar icon shows a cloud with an exclamation mark while a file is stuck. Files that iCloud has not synced appear in Transfers, stuck files first. A file is marked stuck ("Waiting · last attempt 4 min ago") when iCloud reports an upload or download error for it, or when it is in iCloud's queue and its upload has not progressed for 2 minutes. File Info shows the file's entry in the queue.
 - `--queue-status` prints iCloud Drive's queue with the files it refers to, and exits.
 - A Troubleshooting section in the README: what SyncGlass does not do, and how to read iCloud Drive's log.
+
+### Changed
+
+- Transfers that were running when SyncGlass quit, or that started while it was not running, appear in Transfers after the next launch. SyncGlass saves the files in transfer and asks macOS (FSEvents) for the changes made since it last ran. Scan for Transfers is rarely needed and has moved from the panel's ⋯ menu to Settings > Monitoring only.
+- Settings has a Monitoring tab with the folder, the check frequency, hidden files, symbolic links and Scan for Transfers. General keeps the menu bar, startup and updates.
 
 ## [0.2.1] - 2026-10-24
 
