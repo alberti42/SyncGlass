@@ -293,6 +293,8 @@ private struct WatchBar: View {
             Text("Turn this on when you have reason to believe that iCloud Drive is stuck on a file, and off once you know which file it is.")
             Text("SyncGlass reads iCloud Drive's queue at once and then every minute.")
             Text("A file is marked stuck when iCloud reports an upload or download error for it, or when it is in iCloud's queue and its upload has not progressed for \(minutes) minutes. So a file without an error appears as stuck only after \(minutes) minutes of watching.")
+            Text("If a file stays stuck, we would like to hear from you. SyncGlass shows which file is stuck, but it names the cause only when iCloud reports an error for the file, as it does when the network connection is missing. Please open an issue on GitHub with the output of brctl status: real cases help us diagnose more kinds of problems.")
+            Link("How to send it", destination: URL(string: "https://github.com/alberti42/SyncGlass#troubleshooting")!)
             Text("Choose Watch for Stuck Files in the ⋯ menu again to stop.")
                 .foregroundStyle(.secondary)
         }
