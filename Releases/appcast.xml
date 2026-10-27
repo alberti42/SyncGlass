@@ -6,6 +6,66 @@
         <description>Updates of SyncGlass. .github/workflows/publish-release.yml adds an item for each published release.</description>
         <language>en</language>
         <item>
+            <title>0.3.0</title>
+            <pubDate>Tue, 27 Oct 2026 10:10:27 +0000</pubDate>
+            <sparkle:version>5</sparkle:version>
+            <sparkle:shortVersionString>0.3.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/alberti42/SyncGlass/releases/download/v0.3.0/SyncGlass.zip" length="3787950" type="application/octet-stream" sparkle:edSignature="YNJB/uTgx5XJT0YkFJiNDyoGOtC/ouNBkH5A/nA89zwqjvKCTRpwr1fqETp8L2K6Fa05ft1JqV8xspuOhsaPBg=="/>
+        
+            <description><![CDATA[
+<h3>Added</h3>
+<ul>
+<li>Watch for Stuck Files in the panel's ⋯ menu, off by default. While it is on, SyncGlass reads iCloud Drive's queue with <code>brctl status</code> every minute. A bar below the panel's header shows when SyncGlass last checked and how many files are stuck; its ⓘ button explains the watch and how to report a stuck file. The menu-bar icon shows a cloud with an exclamation mark while a file is stuck. Files that iCloud has not synced appear in Transfers, stuck files first. A file is marked stuck ("Waiting · last attempt 4 min ago") when iCloud reports an upload or download error for it, or when it is in iCloud's queue and its upload has not progressed for 2 minutes. File Info shows the file's entry in the queue.</li>
+<li><code>--queue-status</code> prints iCloud Drive's queue with the files it refers to, and exits.</li>
+<li>A Troubleshooting section in the README: what SyncGlass does not do, and how to read iCloud Drive's log.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>Transfers that were running when SyncGlass quit, or that started while it was not running, appear in Transfers after the next launch. SyncGlass saves the files in transfer and asks macOS (FSEvents) for the changes made since it last ran. Scan for Transfers is rarely needed and has moved from the panel's ⋯ menu to Settings > Monitoring only.</li>
+<li>Scan for Transfers also finds files that are downloading, and adds the files it finds to Transfers instead of replacing the list.</li>
+<li>Settings has a Monitoring tab with the folder, the check frequency, hidden files, symbolic links and Scan for Transfers. General keeps the menu bar, startup and updates.</li>
+<li>Each Settings tab is as tall as its content, except Filters, which scrolls.</li>
+</ul>
+<h2>Changes since v0.2.1</h2>
+<ul>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/9828939">9828939</a> Add the Settings tab heights to 0.3.0 in the changelog</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/9b63fb5">9b63fb5</a> Explain that SyncGlass rarely needs Scan for Transfers</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/49929e4">49929e4</a> Find downloads in Scan for Transfers and add its results to the transfers</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/0d62b46">0d62b46</a> Say when Scan for Transfers is needed</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/654c77f">654c77f</a> Explain Scan for Transfers in plainer words</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/e1a9e2a">e1a9e2a</a> Size each Settings tab to its content, except Filters</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/32432ca">32432ca</a> Add the changes since the v0.3.0 draft to 0.3.0 in the changelog</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/3889636">3889636</a> Move the monitoring settings and Scan for Transfers to a Monitoring tab</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/1c93530">1c93530</a> Document transfers across restarts and the Scan for Transfers change</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/d4868fa">d4868fa</a> Give General its own height and remove Scan for Transfers from the menu</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/7b67121">7b67121</a> Replay the FSEvents changes made while SyncGlass was not running</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/8086123">8086123</a> Re-check the transfers that were in flight when SyncGlass quit</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/6fa1eb3">6fa1eb3</a> Version bump to v0.3.0 (build 5)</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/8881457">8881457</a> Mention the watch popover in the changelog</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/38f480f">38f480f</a> Ask for brctl status output in the watch popover</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/54cb549">54cb549</a> Say why the README asks for brctl status output</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/65f9c2a">65f9c2a</a> Ask for brctl status output in issues about stuck files</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/69e6c18">69e6c18</a> Version bump to v0.3.0-beta.1 (build 4)</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/d55c907">d55c907</a> Explain Watch for Stuck Files in a popover from the watch bar</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/c21d47f">c21d47f</a> Document the watch bar and the stuck menu-bar icon</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/c6af3b1">c6af3b1</a> Remove Stop Watching from the watch bar</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/3e9b4dd">3e9b4dd</a> Show a cloud with an exclamation mark in the menu bar when a file is stuck</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/de11cbf">de11cbf</a> Switch to Transfers when Watch for Stuck Files is turned on</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/b93005c">b93005c</a> Show a bar in the panel while Watch for Stuck Files is on</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/1242755">1242755</a> Document Watch for Stuck Files and --queue-status</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/ce72b90">ce72b90</a> Add --queue-status, which prints iCloud Drive's queue and exits</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/2979b2f">2979b2f</a> Add Watch for Stuck Files to the panel's menu</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/e0cd4a7">e0cd4a7</a> Read iCloud Drive's queue of unsynced items with brctl status</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/4137d06">4137d06</a> Add a Troubleshooting section to the README</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/f294e27">f294e27</a> Add a security policy</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/f22e58f">f22e58f</a> Show a screenshot of the panel in the README</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/d4eff92">d4eff92</a> Release v0.2.1 (automatic appcast update)</li>
+</ul>
+<p><strong>Full diff:</strong> https://github.com/alberti42/SyncGlass/compare/v0.2.1...v0.3.0</p>
+            ]]></description>
+        </item>
+        <item>
             <title>0.2.1</title>
             <pubDate>Sat, 24 Oct 2026 16:01:22 +0000</pubDate>
             <sparkle:version>3</sparkle:version>
