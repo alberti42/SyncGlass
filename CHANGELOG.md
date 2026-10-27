@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-27
+
 ### Added
 
 - Watch for Stuck Files in the panel's ⋯ menu, off by default. While it is on, SyncGlass reads iCloud Drive's queue with `brctl status` every minute. A bar below the panel's header shows when SyncGlass last checked and how many files are stuck; its ⓘ button explains the watch and how to report a stuck file. The menu-bar icon shows a cloud with an exclamation mark while a file is stuck. Files that iCloud has not synced appear in Transfers, stuck files first. A file is marked stuck ("Waiting · last attempt 4 min ago") when iCloud reports an upload or download error for it, or when it is in iCloud's queue and its upload has not progressed for 2 minutes. File Info shows the file's entry in the queue.
@@ -38,7 +40,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Open at login through a login helper registered with `SMAppService`.
 - App icon: a magnifying glass over a half-filled cloud.
 
-[Unreleased]: https://github.com/alberti42/SyncGlass/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/alberti42/SyncGlass/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/alberti42/SyncGlass/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/alberti42/SyncGlass/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/alberti42/SyncGlass/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/alberti42/SyncGlass/releases/tag/v0.1.0
