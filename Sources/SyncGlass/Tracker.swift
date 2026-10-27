@@ -154,16 +154,6 @@ final class Tracker: @unchecked Sendable {
         }
     }
 
-    /// Results of a rescan replace the paths in flight.
-    func setExistingTransfers(_ paths: [String]) {
-        withState {
-            startTime = CFAbsoluteTimeGetCurrent()
-            transfers = Set(paths)
-            total = Set(paths)
-            downloading.removeAll()
-        }
-    }
-
     /// Queue paths that live FSEvents did not report (`replayed`). They go through
     /// the same checks as changed paths, but only those in flight are tracked.
     func queuePaths(_ paths: [String]) {

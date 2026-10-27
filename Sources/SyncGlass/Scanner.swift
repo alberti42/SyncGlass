@@ -3,8 +3,9 @@ import SwiftUI
 
 /// Scan for Transfers.
 ///
-/// Walks a folder for files that are not uploaded yet and hands them to the
-/// tracker as the transfers in flight. The tracker is paused during the scan.
+/// Walks a folder for files that are uploading or downloading and hands them to
+/// `Tracker.queuePaths`, which adds those still in flight to the transfers. The
+/// tracker is paused during the scan.
 @MainActor
 final class Scanner: ObservableObject {
     private static var current: Scanner?
@@ -55,6 +56,7 @@ final class Scanner: ObservableObject {
             }
         }
         let ignoreSymlinks = Prefs.ignoreSymbolicLinks
+        let trackDownloads = Prefs.trackIncomingDownloads
         let flag = cancelFlag
         let scanner = self   // kept alive by `Scanner.current` until `finish`
         Task.detached(priority: .userInitiated) {
@@ -73,7 +75,8 @@ final class Scanner: ObservableObject {
                         let shown = (path as NSString).abbreviatingWithTildeInPath
                         Task { @MainActor in scanner.currentPath = shown }
                     }
-                    if !state.isUploaded && (!state.isDirectory || state.isPackage) && state.containsBytes
+                    if case .inFlight = state.phase(trackDownloads: trackDownloads),
+                       (!state.isDirectory || state.isPackage) && state.containsBytes
                         && !PathChecks.isInsideImplicitPackage(path)
                     {
                         found.append(path)
@@ -101,10 +104,10 @@ final class Scanner: ObservableObject {
             if found.isEmpty {
                 let alert = NSAlert()
                 alert.messageText = "No transfers in progress"
-                alert.informativeText = "Every file in the folder is uploaded to iCloud."
+                alert.informativeText = "No file in the folder is uploading or downloading."
                 alert.runModal()
             } else {
-                Tracker.shared.setExistingTransfers(found)
+                Tracker.shared.queuePaths(found)
             }
         }
         Tracker.shared.resume()
@@ -131,7 +134,7 @@ private struct ScannerView: View {
                     .lineLimit(1)
                     .truncationMode(.middle)
                 HStack {
-                    Text(scanner.foundCount == 1 ? "1 file not yet uploaded" : "\(scanner.foundCount) files not yet uploaded")
+                    Text(scanner.foundCount == 1 ? "1 file uploading or downloading" : "\(scanner.foundCount) files uploading or downloading")
                         .font(.callout)
                         .monospacedDigit()
                     Spacer()
