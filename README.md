@@ -18,6 +18,7 @@ SyncGlass lists iCloud Drive's transfers in one place: how many files are in fli
 ## Table of Contents
 
 - [Features](#features)
+- [Settings](#settings)
 - [Installation](#installation)
 - [Permissions and privacy](#permissions-and-privacy)
 - [How it works](#how-it-works)
@@ -41,6 +42,27 @@ SyncGlass lists iCloud Drive's transfers in one place: how many files are in fli
 - **History log** of finished transfers, which opens in Console.
 - **Open at login**, through a login helper registered with macOS.
 - **Updates** through [Sparkle](https://sparkle-project.org): SyncGlass checks for a new version once a week, or when you choose Check for Updates in the panel's menu.
+
+## Settings
+
+- **General**: transfer progress in the menu-bar icon, open at login, and automatic update checks.
+- **Monitoring**: the folder to watch (iCloud Drive, all iCloud documents, or a folder you choose), incoming downloads, hidden files and symbolic links, how many files each pass re-checks, and Scan for Transfers.
+- **Notifications**: notifications when uploads or downloads finish. Short transfers can be left out, downloads that arrive together are grouped, and the sound can be chosen.
+- **History**: the history log and its size limit, the number of recent files to remember, and Clear History.
+- **Filters**: include and exclude regular expressions, matched against the full path.
+
+<table>
+  <tr>
+    <td valign="top" width="50%"><img src="Images/Screenshot-monitoring.png" width="100%" alt="Settings, Monitoring tab: the folder, incoming downloads, hidden files, symbolic links, how often to check for changes, and Scan for Transfers"></td>
+    <td valign="top" width="50%"><img src="Images/Screenshot-notifications.png" width="100%" alt="Settings, Notifications tab: notifications for finished uploads and downloads, the minimum transfer time, download grouping, and the sound"></td>
+  </tr>
+</table>
+<table>
+  <tr>
+    <td valign="top" width="50%"><img src="Images/Screenshot-history.png" width="100%" alt="Settings, History tab: the history log, its size limit, the number of recent files, Show Log in Finder and Clear History"></td>
+    <td valign="top" width="50%"><img src="Images/Screenshot-filters.png" width="100%" alt="Settings, Filters tab: the Track Only and Never Track lists of regular expressions"></td>
+  </tr>
+</table>
 
 ## Installation
 
