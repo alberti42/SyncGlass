@@ -36,7 +36,7 @@ SyncGlass lists iCloud Drive's transfers in one place: how many files are in fli
 - **File Info**: for any listed file, its iCloud status, live percentage, conflicts, upload and download errors, sharing, the last transfer SyncGlass recorded, and every date macOS keeps for the file.
 - **Notifications** when uploads or downloads finish. Short transfers can be left out, and the sound can be chosen.
 - **Filters**: include and exclude regular expressions, matched against the full path.
-- **Transfers across restarts**: transfers that were running when SyncGlass quit, or that started while it was not running, appear again after the next launch. **Scan for Transfers** in Settings > General is for the rare case where they do not, for example after the first launch; it checks every file in the folder, so it takes longer the more files the folder holds.
+- **Transfers across restarts**: transfers that were running when SyncGlass quit, or that started while it was not running, appear again after the next launch. **Scan for Transfers** in Settings > Monitoring is for the rare case where they do not, for example after the first launch; it checks every file in the folder, so it takes longer the more files the folder holds.
 - **Watch for Stuck Files** shows which files iCloud Drive is stuck on. See [Troubleshooting](#troubleshooting).
 - **History log** of finished transfers, which opens in Console.
 - **Open at login**, through a login helper registered with macOS.

@@ -8,8 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- Transfers that were running when SyncGlass quit, or that started while it was not running, appear in Transfers after the next launch. SyncGlass saves the files in transfer and asks macOS (FSEvents) for the changes made since it last ran. Scan for Transfers is rarely needed and has moved from the panel's ⋯ menu to Settings > General only.
-- Settings > General is taller, so it no longer scrolls on most screens. Hidden files and symbolic links are now set under Monitoring.
+- Transfers that were running when SyncGlass quit, or that started while it was not running, appear in Transfers after the next launch. SyncGlass saves the files in transfer and asks macOS (FSEvents) for the changes made since it last ran. Scan for Transfers is rarely needed and has moved from the panel's ⋯ menu to Settings > Monitoring only.
+- Settings has a Monitoring tab with the folder, the check frequency, hidden files, symbolic links and Scan for Transfers. General keeps the menu bar, startup and updates.
 
 ## [0.3.0] - 2026-10-27
 

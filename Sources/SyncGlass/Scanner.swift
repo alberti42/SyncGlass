@@ -14,7 +14,7 @@ final class Scanner: ObservableObject {
     private let cancelFlag = CancelFlag()
     private var window: NSWindow?
 
-    /// From Settings > General: choose the folder first.
+    /// From Settings > Monitoring: choose the folder first.
     static func scanWithPanel() {
         if let path = FolderPicker.choose(
             startingAt: Prefs.folder,
