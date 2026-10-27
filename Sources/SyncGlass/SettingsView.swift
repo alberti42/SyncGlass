@@ -150,7 +150,7 @@ private struct MonitoringPane: View {
             Section {
                 Button("Scan for Transfers…") { Scanner.scanWithPanel() }
             } footer: {
-                Text("When SyncGlass opens, it also lists the files that were uploading or downloading when it quit, or that started while it was not running. It cannot do this the first time you open it, or after macOS resets its record of file changes. Then iCloud can be uploading a file that SyncGlass does not list, and Scan for Transfers finds it. The scan looks at every file in the folder, so it takes longer the more files the folder holds.")
+                Text("SyncGlass lists uploads and downloads even when they started before SyncGlass opened: it remembers the files in transfer when it quits, and macOS tells it which files changed while it was not running (the same record of changed files that Time Machine uses). If you think a large upload or download that started before SyncGlass opened is missing from the list, Scan for Transfers checks every file in the folder again and lists the ones that iCloud is still uploading or downloading. The scan takes longer the more files the folder holds.")
                     .foregroundStyle(.secondary)
             }
         }
