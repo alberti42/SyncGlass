@@ -14,12 +14,7 @@ final class Scanner: ObservableObject {
     private let cancelFlag = CancelFlag()
     private var window: NSWindow?
 
-    /// From the popover's "Rescan..." item: scan the configured folder.
-    static func scanConfiguredFolder() {
-        scan(Prefs.folder)
-    }
-
-    /// From Preferences: choose the folder first.
+    /// From Settings > General: choose the folder first.
     static func scanWithPanel() {
         if let path = FolderPicker.choose(
             startingAt: Prefs.folder,

@@ -3,15 +3,25 @@ import ServiceManagement
 import SwiftUI
 
 /// The Settings window. Controls bind to user defaults through `@AppStorage(PrefKey.…)`.
+/// Each tab has its own height; the window resizes when the tab changes.
 struct SettingsView: View {
     var body: some View {
         TabView {
-            Tab("General", systemImage: "gearshape") { GeneralPane() }
-            Tab("Notifications", systemImage: "bell.badge") { NotificationsPane() }
-            Tab("History", systemImage: "clock.arrow.circlepath") { HistoryPane() }
-            Tab("Filters", systemImage: "line.3.horizontal.decrease") { FiltersPane() }
+            Tab("General", systemImage: "gearshape") {
+                GeneralPane().frame(width: 520, height: Self.generalHeight)
+            }
+            Tab("Notifications", systemImage: "bell.badge") { NotificationsPane().frame(width: 520, height: 560) }
+            Tab("History", systemImage: "clock.arrow.circlepath") { HistoryPane().frame(width: 520, height: 560) }
+            Tab("Filters", systemImage: "line.3.horizontal.decrease") { FiltersPane().frame(width: 520, height: 560) }
         }
-        .frame(width: 520, height: 560)
+    }
+
+    /// General needs 810 pt. On a smaller screen it gets the screen's height below
+    /// the menu bar and above the Dock, minus 100 pt for the title bar and the tabs,
+    /// and the form scrolls.
+    private static var generalHeight: CGFloat {
+        let available = (NSScreen.main?.visibleFrame.height ?? 900) - 100
+        return max(560, min(810, available))
     }
 }
 
@@ -46,16 +56,13 @@ private struct GeneralPane: View {
                     Text("Economically").tag(PollingMode.economical.rawValue)
                 }
                 Toggle("Track incoming downloads", isOn: $trackDownloads)
+                Toggle("Ignore hidden files", isOn: $ignoreHidden)
+                Toggle("Ignore symbolic links", isOn: $ignoreSymlinks)
             } header: {
                 Text("Monitoring")
             } footer: {
                 Text("Frequent checking re-checks 100 files per pass, economical checking 25.")
                     .foregroundStyle(.secondary)
-            }
-
-            Section("Ignore") {
-                Toggle("Hidden files", isOn: $ignoreHidden)
-                Toggle("Symbolic links", isOn: $ignoreSymlinks)
             }
 
             Section("Menu Bar") {
@@ -72,7 +79,7 @@ private struct GeneralPane: View {
             Section {
                 Button("Scan for Transfers…") { Scanner.scanWithPanel() }
             } footer: {
-                Text("Scanning finds files that started transferring before SyncGlass was running.")
+                Text("SyncGlass finds transfers that started while it was not running from the changes macOS records. A scan is rarely needed: only when Transfers stays empty although iCloud Drive is uploading, for example after the first launch. It checks every file in the folder, so it takes longer the more files the folder holds.")
                     .foregroundStyle(.secondary)
             }
         }

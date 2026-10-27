@@ -77,9 +77,6 @@ struct StatusPanel: View {
     private var moreMenu: some View {
         MoreButton { anchor in
             let menu = NSMenu()
-            menu.addItem(ActionMenuItem("Scan for Transfers…", systemImage: "magnifyingglass") {
-                Scanner.scanConfiguredFolder()
-            })
             let watch = ActionMenuItem("Watch for Stuck Files", systemImage: "exclamationmark.triangle") {
                 model.toggleStuckFileWatch()
             }
