@@ -3,16 +3,25 @@ import ServiceManagement
 import SwiftUI
 
 /// The Settings window. Controls bind to user defaults through `@AppStorage(PrefKey.…)`.
+/// Each tab takes the height of its content and the window resizes when the tab
+/// changes. Filters has a fixed height and scrolls, because its lists grow with
+/// every pattern.
 struct SettingsView: View {
     var body: some View {
         TabView {
-            Tab("General", systemImage: "gearshape") { GeneralPane() }
-            Tab("Monitoring", systemImage: "eye") { MonitoringPane() }
-            Tab("Notifications", systemImage: "bell.badge") { NotificationsPane() }
-            Tab("History", systemImage: "clock.arrow.circlepath") { HistoryPane() }
-            Tab("Filters", systemImage: "line.3.horizontal.decrease") { FiltersPane() }
+            Tab("General", systemImage: "gearshape") { GeneralPane().fittingHeight() }
+            Tab("Monitoring", systemImage: "eye") { MonitoringPane().fittingHeight() }
+            Tab("Notifications", systemImage: "bell.badge") { NotificationsPane().fittingHeight() }
+            Tab("History", systemImage: "clock.arrow.circlepath") { HistoryPane().fittingHeight() }
+            Tab("Filters", systemImage: "line.3.horizontal.decrease") { FiltersPane().frame(width: 520, height: 520) }
         }
-        .frame(width: 520, height: 560)
+    }
+}
+
+private extension View {
+    /// 520 pt wide and as tall as the content.
+    func fittingHeight() -> some View {
+        frame(width: 520).fixedSize(horizontal: false, vertical: true)
     }
 }
 
