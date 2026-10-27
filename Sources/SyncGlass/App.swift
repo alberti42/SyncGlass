@@ -109,6 +109,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, TrackerDelegate {
         }
     }
 
+    func applicationWillTerminate(_ notification: Notification) {
+        tracker?.saveEventID()
+    }
+
     // MARK: TrackerDelegate
 
     func trackerStatusChanged(_ snapshot: TrackerSnapshot) {

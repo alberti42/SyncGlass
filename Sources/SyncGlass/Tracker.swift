@@ -51,12 +51,25 @@ final class Tracker: @unchecked Sendable {
     @MainActor weak var delegate: TrackerDelegate?
 
     private let queueLock = NSLock()   // guards `pending`
+    private let replayLock = NSLock()  // guards `replayed`
     private let stateLock = NSLock()   // guards the transfer sets and the counters
 
     /// Paths waiting for a first check (FSEvents output).
     private var pending = Set<String>()
     /// Paths that arrived while the poll thread held `queueLock`.
     private var overflow: [String] = []
+    /// Paths that did not come from live FSEvents: FSEvents' replay of the changes
+    /// made while SyncGlass was not running, the paths in flight when it quit, and
+    /// the items in iCloud's queue. Only those in flight are tracked. The others
+    /// are not counted as changes from other devices: SyncGlass did not see when
+    /// they changed.
+    private var replayed = Set<String>()
+
+    /// `streamQueue` only. True until FSEvents sends `HistoryDone`.
+    private var isReplayingHistory = false
+    /// `streamQueue` only. The ID of the last FSEvents event received.
+    private var lastEventID: FSEventStreamEventId = 0
+    private var lastEventIDSave: CFAbsoluteTime = 0
     /// Paths in flight.
     private var transfers = Set<String>()
     /// Paths in flight whose last check reported a download.
@@ -151,11 +164,26 @@ final class Tracker: @unchecked Sendable {
         }
     }
 
-    /// Queue paths that FSEvents did not report, such as the items in iCloud's
-    /// queue. They go through the same checks as changed paths.
+    /// Queue paths that live FSEvents did not report (`replayed`). They go through
+    /// the same checks as changed paths, but only those in flight are tracked.
     func queuePaths(_ paths: [String]) {
         guard !paths.isEmpty else { return }
-        streamQueue.async { [weak self] in paths.forEach { self?.queueFile($0) } }
+        replayLock.withLock { replayed.formUnion(paths) }
+    }
+
+    /// At quit: save the ID of the last FSEvents event, so that the next launch
+    /// checks the files that change while SyncGlass is not running.
+    func saveEventID() {
+        streamQueue.sync { saveLastEventID() }
+    }
+
+    /// The FSEvents ID to start a stream from: the last event SyncGlass received,
+    /// so that FSEvents replays what changed since then. Without a saved ID, or
+    /// with one newer than the current ID (the event database was reset), the
+    /// stream starts now.
+    static func startEventID(saved: UInt64?, current: UInt64) -> FSEventStreamEventId {
+        guard let saved, saved > 0, saved <= current else { return FSEventStreamEventId(kFSEventStreamEventIdSinceNow) }
+        return saved
     }
 
     /// Stop Tracking in the transfer list moves the path to completed.
@@ -196,11 +224,21 @@ final class Tracker: @unchecked Sendable {
         var context = FSEventStreamContext(
             version: 0, info: Unmanaged.passUnretained(self).toOpaque(),
             retain: nil, release: nil, copyDescription: nil)
-        let callback: FSEventStreamCallback = { _, info, count, eventPaths, _, _ in
+        let callback: FSEventStreamCallback = { _, info, count, eventPaths, eventFlags, eventIDs in
             guard let info else { return }
             let tracker = Unmanaged<Tracker>.fromOpaque(info).takeUnretainedValue()
             let paths = Unmanaged<CFArray>.fromOpaque(eventPaths).takeUnretainedValue() as? [String] ?? []
-            for path in paths.prefix(count) { tracker.queueFile(path) }
+            for i in 0..<min(count, paths.count) {
+                tracker.received(paths[i], flags: eventFlags[i], id: eventIDs[i])
+            }
+        }
+        let since: FSEventStreamEventId = streamQueue.sync {
+            let saved = lastEventID != 0
+                ? lastEventID : (Prefs.store.object(forKey: PrefKey.lastEventID) as? NSNumber)?.uint64Value
+            let since = Tracker.startEventID(saved: saved, current: FSEventsGetCurrentEventId())
+            isReplayingHistory = since != FSEventStreamEventId(kFSEventStreamEventIdSinceNow)
+            if lastEventID == 0 { lastEventID = isReplayingHistory ? since : FSEventsGetCurrentEventId() }
+            return since
         }
         // UseCFTypes | NoDefer | WatchRoot | IgnoreSelf | FileEvents, latency 1 s.
         let flags = FSEventStreamCreateFlags(
@@ -208,8 +246,7 @@ final class Tracker: @unchecked Sendable {
                 | kFSEventStreamCreateFlagWatchRoot | kFSEventStreamCreateFlagIgnoreSelf
                 | kFSEventStreamCreateFlagFileEvents)
         guard let s = FSEventStreamCreate(
-            nil, callback, &context, paths as CFArray,
-            FSEventStreamEventId(kFSEventStreamEventIdSinceNow), 1.0, flags)
+            nil, callback, &context, paths as CFArray, since, 1.0, flags)
         else {
             NSLog("SyncGlass: FSEventStreamCreate returned nil")
             return
@@ -217,6 +254,24 @@ final class Tracker: @unchecked Sendable {
         FSEventStreamSetDispatchQueue(s, streamQueue)
         FSEventStreamStart(s)
         stream = s
+    }
+
+    /// One FSEvents event. Runs on `streamQueue`. Events before `HistoryDone` are
+    /// FSEvents' replay of the changes made while SyncGlass was not running.
+    private func received(_ path: String, flags: FSEventStreamEventFlags, id: FSEventStreamEventId) {
+        if flags & FSEventStreamEventFlags(kFSEventStreamEventFlagHistoryDone) != 0 {
+            isReplayingHistory = false
+            return
+        }
+        if isReplayingHistory { queuePaths([path]) } else { queueFile(path) }
+        lastEventID = max(lastEventID, id)
+        if CFAbsoluteTimeGetCurrent() - lastEventIDSave > 10 { saveLastEventID() }
+    }
+
+    /// Runs on `streamQueue`.
+    private func saveLastEventID() {
+        lastEventIDSave = CFAbsoluteTimeGetCurrent()
+        Prefs.store.set(NSNumber(value: lastEventID), forKey: PrefKey.lastEventID)
     }
 
     /// Queue a changed path. Runs on `streamQueue`.
@@ -297,25 +352,45 @@ final class Tracker: @unchecked Sendable {
     private func checkPendingPaths() {
         queueLock.lock()
         defer { queueLock.unlock() }
-        guard !pending.isEmpty else { return }
+        var replay = replayLock.withLock { () -> Set<String> in
+            defer { replayed.removeAll() }
+            return replayed
+        }
+        // Paths left over when the tracker pauses wait for the next pass.
+        defer { if !replay.isEmpty { replayLock.withLock { replayed.formUnion(replay) } } }
+        guard !pending.isEmpty || !replay.isEmpty else { return }
 
         resetInactivityTimer()
         var lastBreath = CFAbsoluteTimeGetCurrent()
-        let trackDownloads = Prefs.trackIncomingDownloads
-        for path in pending {
-            if isPaused { break }
-            pending.remove(path)
-            if path.hasSuffix(".DS_Store") { continue }
-            let state = ItemState(path: path)
-            if Prefs.ignoreHiddenFiles && state.isHidden && !(trackDownloads && state.isDownloading) { continue }
-            if Prefs.ignoreSymbolicLinks && state.isSymbolicLink { continue }
-            if !PathChecks.isInsidePackage(path) && state.containsBytes && (!state.isDirectory || state.isPackage) {
-                checkStatus(path, state: state)
-            }
+        func breathe() {
             if CFAbsoluteTimeGetCurrent() - lastBreath > 1 {
                 Thread.sleep(forTimeInterval: 0.5)
                 lastBreath = CFAbsoluteTimeGetCurrent()
             }
+        }
+        for path in pending {
+            if isPaused { return }
+            pending.remove(path)
+            checkQueued(path, countsChanges: true)
+            breathe()
+        }
+        for path in replay {
+            if isPaused { return }
+            replay.remove(path)
+            checkQueued(path, countsChanges: false)
+            breathe()
+        }
+    }
+
+    /// The filters for a queued path, then `checkStatus`.
+    private func checkQueued(_ path: String, countsChanges: Bool) {
+        if path.hasSuffix(".DS_Store") { return }
+        let trackDownloads = Prefs.trackIncomingDownloads
+        let state = ItemState(path: path)
+        if Prefs.ignoreHiddenFiles && state.isHidden && !(trackDownloads && state.isDownloading) { return }
+        if Prefs.ignoreSymbolicLinks && state.isSymbolicLink { return }
+        if !PathChecks.isInsidePackage(path) && state.containsBytes && (!state.isDirectory || state.isPackage) {
+            checkStatus(path, state: state, countsChanges: countsChanges)
         }
     }
 
@@ -343,8 +418,9 @@ final class Tracker: @unchecked Sendable {
     /// `ubiquitousItemIsDownloading`; macOS 14 and later keep dataless files in
     /// place and create no `.icloud` placeholder files. A path that is not in
     /// iCloud, such as one inside a `.nosync` folder, has no upload state and is
-    /// dropped like a path that no longer exists.
-    private func checkStatus(_ path: String, state: ItemState) {
+    /// dropped like a path that no longer exists. With `countsChanges` false (paths
+    /// from `replayed`), a current path that is not tracked is not counted.
+    private func checkStatus(_ path: String, state: ItemState, countsChanges: Bool = true) {
         let trackDownloads = Prefs.trackIncomingDownloads
         let phase = state.phase(trackDownloads: trackDownloads)
 
@@ -381,7 +457,7 @@ final class Tracker: @unchecked Sendable {
                 completedThisPass += 1
                 completed.insert(path)
             }
-        } else if trackDownloads && PathChecks.passesFilters(path) {
+        } else if countsChanges && trackDownloads && PathChecks.passesFilters(path) {
             let isNew = withState { () -> Bool in
                 guard !downloads.contains(path) else { return false }
                 if startTime == 0 { startTime = CFAbsoluteTimeGetCurrent() }

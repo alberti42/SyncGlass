@@ -23,6 +23,8 @@ enum PrefKey {
     static let iCloudDiskUsage = "ICloudDiskUsage"
     static let selectedTabIndex = "selectedTabIndex"
     static let launchedFirstTime = "launchedFirstTime"
+    /// The ID of the last FSEvents event the tracker received (`Tracker.startEventID`).
+    static let lastEventID = "LastFSEventID"
 }
 
 enum StatusItemMode: Int {
