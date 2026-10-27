@@ -81,6 +81,8 @@ final class Tracker: @unchecked Sendable {
     private var completedThisPass = 0
     private var finished = false
     private var logDirty = false
+    /// The paths in flight as last written to `InFlightTransfersStore`.
+    private var savedTransfers = Set<String>()
 
     private var paused = false
     private var thread: Thread?
@@ -102,6 +104,9 @@ final class Tracker: @unchecked Sendable {
         t.qualityOfService = .utility
         thread = t
         t.start()
+
+        // Re-check the paths that were in flight when SyncGlass quit.
+        queuePaths(InFlightTransfersStore.load())
     }
 
     // MARK: Control
@@ -427,10 +432,14 @@ final class Tracker: @unchecked Sendable {
             }
         }
 
-        withState {
+        let toSave: Set<String>? = withState {
             previousTransferCount = transfers.count
             if !finished { previousDownloadCount = downloads.count }
+            guard transfers != savedTransfers else { return nil }
+            savedTransfers = transfers
+            return transfers
         }
+        if let toSave { InFlightTransfersStore.save(toSave) }
     }
 
     // MARK: History
