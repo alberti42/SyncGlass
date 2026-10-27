@@ -36,7 +36,7 @@ SyncGlass lists iCloud Drive's transfers in one place: how many files are in fli
 - **File Info**: for any listed file, its iCloud status, live percentage, conflicts, upload and download errors, sharing, the last transfer SyncGlass recorded, and every date macOS keeps for the file.
 - **Notifications** when uploads or downloads finish. Short transfers can be left out, and the sound can be chosen.
 - **Filters**: include and exclude regular expressions, matched against the full path.
-- **Scan for Transfers** finds files that started uploading before SyncGlass was running.
+- **Transfers across restarts**: transfers that were running when SyncGlass quit, or that started while it was not running, appear again after the next launch. **Scan for Transfers** in Settings > General is for the rare case where they do not, for example after the first launch; it checks every file in the folder, so it takes longer the more files the folder holds.
 - **Watch for Stuck Files** shows which files iCloud Drive is stuck on. See [Troubleshooting](#troubleshooting).
 - **History log** of finished transfers, which opens in Console.
 - **Open at login**, through a login helper registered with macOS.
@@ -65,7 +65,7 @@ gh attestation verify SyncGlass.zip --repo alberti42/SyncGlass
 
 SyncGlass uses public macOS APIs, plus one undocumented command while Watch for Stuck Files is on:
 
-- **FSEvents** reports which files change in the watched folder (`~/Library/Mobile Documents`, or only its iCloud Drive part).
+- **FSEvents** reports which files change in the watched folder (`~/Library/Mobile Documents`, or only its iCloud Drive part). macOS keeps a history of these changes; at launch SyncGlass asks for the changes since it last ran.
 - **URL resource values** (`ubiquitousItemIsUploaded`, `ubiquitousItemIsUploading`, `ubiquitousItemIsDownloading`, …) give each file's iCloud state. A file stays in the Transfers list until iCloud reports it uploaded and no longer downloading.
 - **`Progress.addSubscriber(forFileURL:)`** receives the progress objects that iCloud Drive publishes for each file it transfers. They carry the byte counts behind the percentages.
 - **`brctl status`** (only while Watch for Stuck Files is on) lists the items iCloud Drive has not synced yet, with the time of the last upload attempt. It abbreviates names; SyncGlass identifies each file by its File Provider identifier (`NSFileProviderManager.getIdentifierForUserVisibleFile(at:)`). `brctl` is undocumented, so a macOS update can change its output.
