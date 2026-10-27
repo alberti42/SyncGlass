@@ -150,7 +150,7 @@ private struct MonitoringPane: View {
             Section {
                 Button("Scan for Transfers…") { Scanner.scanWithPanel() }
             } footer: {
-                Text("SyncGlass finds transfers that started while it was not running from the changes macOS records. A scan is rarely needed: only when Transfers stays empty although iCloud Drive is uploading, for example after the first launch. It checks every file in the folder, so it takes longer the more files the folder holds.")
+                Text("When SyncGlass opens, it also lists the files that were uploading or downloading when it quit, or that started while it was not running. Use Scan for Transfers only if iCloud is uploading a file that SyncGlass does not list, for example the first time you open SyncGlass. The scan looks at every file in the folder, so it takes longer the more files the folder holds.")
                     .foregroundStyle(.secondary)
             }
         }
