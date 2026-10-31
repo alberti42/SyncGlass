@@ -2,6 +2,7 @@
 
 [![notarized download](https://img.shields.io/github/actions/workflow/status/alberti42/SyncGlass/verify-release.yml?label=notarized%20download&logo=apple)](https://github.com/alberti42/SyncGlass/actions/workflows/verify-release.yml)
 [![build](https://img.shields.io/github/actions/workflow/status/alberti42/SyncGlass/build.yml?branch=main&label=build)](https://github.com/alberti42/SyncGlass/actions/workflows/build.yml)
+[![license](https://img.shields.io/github/license/alberti42/SyncGlass)](LICENSE)
 
 **A menu-bar app for macOS that shows which files iCloud Drive is uploading and downloading.**
 
