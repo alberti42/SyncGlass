@@ -1,3 +1,5 @@
+<p align="center"><img src="Images/AppIcon.png" width="160" alt="SyncGlass's icon: a magnifying glass over a cloud filled with blue"></p>
+
 # SyncGlass
 
 [![notarized download](https://img.shields.io/github/actions/workflow/status/alberti42/SyncGlass/verify-release.yml?label=notarized%20download&logo=apple)](https://github.com/alberti42/SyncGlass/actions/workflows/verify-release.yml)
