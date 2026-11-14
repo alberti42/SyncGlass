@@ -20,12 +20,28 @@ case "${ARCHS:-universal}" in
     *)      ARCH_FLAGS="--arch arm64 --arch x86_64" ;;
 esac
 
+# The SDK version recorded in the binary decides the look: AppKit and SwiftUI
+# use Liquid Glass only for apps linked against the macOS 26 SDK or later, and
+# show the pre-26 design otherwise. SwiftPM links with `clang --sysroot`, which
+# records the deployment target (15.0) as the SDK version; `-isysroot` makes
+# clang read the real version from the SDK.
+SDK="$(xcrun --sdk macosx --show-sdk-path)"
+SDK_FLAGS="-Xswiftc -Xclang-linker -Xswiftc -isysroot -Xswiftc -Xclang-linker -Xswiftc $SDK"
+
 # shellcheck disable=SC2086
-swift build -c release $ARCH_FLAGS --product SyncGlass
+swift build -c release $ARCH_FLAGS $SDK_FLAGS --product SyncGlass
 # shellcheck disable=SC2086
-swift build -c release $ARCH_FLAGS --product LoginHelper
+swift build -c release $ARCH_FLAGS $SDK_FLAGS --product LoginHelper
 # shellcheck disable=SC2086
-BIN="$(swift build -c release $ARCH_FLAGS --show-bin-path)"
+BIN="$(swift build -c release $ARCH_FLAGS $SDK_FLAGS --show-bin-path)"
+
+# Stop if the binary would get the pre-26 look.
+for sdk in $(vtool -show-build "$BIN/SyncGlass" | awk '$1 == "sdk" { print $2 }'); do
+    if [ "${sdk%%.*}" -lt 26 ]; then
+        echo "error: $BIN/SyncGlass records SDK $sdk; it must be 26 or later for Liquid Glass" >&2
+        exit 1
+    fi
+done
 
 APP=build/SyncGlass.app
 HELPER="$APP/Contents/Library/LoginItems/SyncGlassLoginHelper.app"
