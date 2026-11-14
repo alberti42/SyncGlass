@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-14
+
 ### Changed
 
 - The panel closes when one of its buttons opens a window or another app: Settings, About, updates, the history log, Clear History, the footer buttons, Get Info and Show in Finder. Watch for Stuck Files and Stop Tracking keep it open, since their result shows in the panel.
@@ -52,7 +54,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Open at login through a login helper registered with `SMAppService`.
 - App icon: a magnifying glass over a half-filled cloud.
 
-[Unreleased]: https://github.com/alberti42/SyncGlass/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/alberti42/SyncGlass/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/alberti42/SyncGlass/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/alberti42/SyncGlass/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/alberti42/SyncGlass/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/alberti42/SyncGlass/compare/v0.1.0...v0.2.0
