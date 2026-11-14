@@ -6,6 +6,36 @@
         <description>Updates of SyncGlass. .github/workflows/publish-release.yml adds an item for each published release.</description>
         <language>en</language>
         <item>
+            <title>0.4.0</title>
+            <pubDate>Sat, 14 Nov 2026 11:35:58 +0000</pubDate>
+            <sparkle:version>6</sparkle:version>
+            <sparkle:shortVersionString>0.4.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/alberti42/SyncGlass/releases/download/v0.4.0/SyncGlass.zip" length="3862549" type="application/octet-stream" sparkle:edSignature="Vj98T9eAoKzutczcacmd9pbTmlsnm3UWr6OfChHmkReWDayeDxw1mkOq7gT4LIjsTVagvD6VL+4qtl5Jsy5uDA=="/>
+        
+            <description><![CDATA[
+<h3>Changed</h3>
+<ul>
+<li>The panel closes when one of its buttons opens a window or another app: Settings, About, updates, the history log, Clear History, the footer buttons, Get Info and Show in Finder. Watch for Stuck Files and Stop Tracking keep it open, since their result shows in the panel.</li>
+<li>SyncGlass runs on macOS 15 Sequoia. There, buttons and backgrounds use the system's bordered style and materials instead of Liquid Glass, which needs macOS 26.</li>
+</ul>
+<h2>Changes since v0.3.0</h2>
+<ul>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/dd0f1d9">dd0f1d9</a> Version bump to v0.4.0 (build 6)</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/455c285">455c285</a> Close the panel when a button opens a window or another app</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/c62c1c4">c62c1c4</a> Sign ad-hoc builds without the hardened runtime</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/b40b9af">b40b9af</a> Support macOS 15 Sequoia</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/0b08624">0b08624</a> Left-align the section footers in Settings and File Info</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/36a28b3">36a28b3</a> Wrap the Liquid Glass APIs with fallbacks for macOS 15</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/58e4c57">58e4c57</a> Show the app icon at the top of the README</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/3ea9c59">3ea9c59</a> Added license badge to the README.md</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/17fe535">17fe535</a> Show the Settings tabs in the README</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/48c3788">48c3788</a> Release v0.3.0 (automatic appcast update)</li>
+</ul>
+<p><strong>Full diff:</strong> https://github.com/alberti42/SyncGlass/compare/v0.3.0...v0.4.0</p>
+            ]]></description>
+        </item>
+        <item>
             <title>0.3.0</title>
             <pubDate>Tue, 27 Oct 2026 10:10:27 +0000</pubDate>
             <sparkle:version>5</sparkle:version>
