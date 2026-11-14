@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-14
+
 ### Fixed
 
 - Files on the Desktop and in Documents are tracked when Desktop & Documents sync is on. macOS keeps these folders in the home folder and iCloud Drive only links to them, so the default Track Only filters, which match paths in iCloud Drive, left their files out. The defaults now include `~/Desktop` and `~/Documents`. If you changed the filters, add `^/Users/<you>/(Desktop|Documents)/` to Track Only, or click Restore Default Filters in Settings > Filters.
@@ -58,7 +60,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Open at login through a login helper registered with `SMAppService`.
 - App icon: a magnifying glass over a half-filled cloud.
 
-[Unreleased]: https://github.com/alberti42/SyncGlass/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/alberti42/SyncGlass/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/alberti42/SyncGlass/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/alberti42/SyncGlass/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/alberti42/SyncGlass/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/alberti42/SyncGlass/compare/v0.2.0...v0.2.1
