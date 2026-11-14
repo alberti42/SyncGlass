@@ -6,6 +6,31 @@
         <description>Updates of SyncGlass. .github/workflows/publish-release.yml adds an item for each published release.</description>
         <language>en</language>
         <item>
+            <title>0.4.1</title>
+            <pubDate>Sat, 14 Nov 2026 16:02:01 +0000</pubDate>
+            <sparkle:version>7</sparkle:version>
+            <sparkle:shortVersionString>0.4.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/alberti42/SyncGlass/releases/download/v0.4.1/SyncGlass.zip" length="3863309" type="application/octet-stream" sparkle:edSignature="ttVdHn5HWFsWScmHY9G7cJZCOov1q+pEaXI2Z1XJhbb44vHmW91Ia/K+ZHzLVleIHD5Df8iMbOXHRvlbfmq+AQ=="/>
+        
+            <description><![CDATA[
+<h3>Fixed</h3>
+<ul>
+<li>Files on the Desktop and in Documents are tracked when Desktop & Documents sync is on. macOS keeps these folders in the home folder and iCloud Drive only links to them, so the default Track Only filters, which match paths in iCloud Drive, left their files out. The defaults now include <code>~/Desktop</code> and <code>~/Documents</code>. If you changed the filters, add <code>^/Users/<you>/(Desktop|Documents)/</code> to Track Only, or click Restore Default Filters in Settings > Filters.</li>
+</ul>
+<h2>Changes since v0.4.0</h2>
+<ul>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/742cb25">742cb25</a> Version bump to v0.4.1 (build 7)</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/04886bc">04886bc</a> Track Desktop and Documents with the default filters</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/7181d5c">7181d5c</a> Offer a preview build to users of older macOS versions</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/bc77cde">bc77cde</a> Invite users of older macOS versions to open an issue</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/fed5995">fed5995</a> Release v0.4.0 (automatic appcast update)</li>
+<li><a href="https://github.com/alberti42/SyncGlass/commit/7be7956">7be7956</a> Record the real SDK version in local builds</li>
+</ul>
+<p><strong>Full diff:</strong> https://github.com/alberti42/SyncGlass/compare/v0.4.0...v0.4.1</p>
+            ]]></description>
+        </item>
+        <item>
             <title>0.4.0</title>
             <pubDate>Sat, 14 Nov 2026 11:35:58 +0000</pubDate>
             <sparkle:version>6</sparkle:version>
