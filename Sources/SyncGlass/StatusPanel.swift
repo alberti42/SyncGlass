@@ -117,7 +117,7 @@ struct StatusPanel: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
             Spacer(minLength: 0)
-            GlassEffectContainer(spacing: 6) {
+            GlassContainer(spacing: 6) {
                 HStack(spacing: 6) {
                     FooterButton(title: "Open iCloud Drive", systemImage: "folder") { model.openICloudDrive() }
                     FooterButton(title: "Open iCloud.com", systemImage: "safari") { model.openICloudOnline() }
@@ -144,8 +144,7 @@ private struct MoreButton: View {
                 .font(.system(size: 15, weight: .semibold))
                 .frame(width: 26, height: 26)
         }
-        .buttonStyle(.glass)
-        .buttonBorderShape(.circle)
+        .glassCircleButtonStyle()
         .background(MenuAnchorView(anchor: anchor))
         .help("More")
         .accessibilityLabel("More")
@@ -198,8 +197,7 @@ private struct FooterButton: View {
             Image(systemName: systemImage)
                 .frame(width: 22, height: 22)
         }
-        .buttonStyle(.glass)
-        .buttonBorderShape(.circle)
+        .glassCircleButtonStyle()
         .help(title)
         .accessibilityLabel(title)
     }
@@ -217,7 +215,7 @@ private struct StatusBadge: View {
             .contentTransition(.symbolEffect(.replace))
             .symbolEffect(.pulse, options: .repeating, isActive: isActive)
             .frame(width: 40, height: 40)
-            .glassEffect(.regular.tint(tint.opacity(0.25)), in: .circle)
+            .glassBackground(tint: tint.opacity(0.25), in: .circle)
             .accessibilityHidden(true)
     }
 
@@ -271,8 +269,7 @@ private struct WatchBar: View {
                     .font(.caption.weight(.semibold))
                     .frame(width: 18, height: 18)
             }
-            .buttonStyle(.glass)
-            .buttonBorderShape(.circle)
+            .glassCircleButtonStyle()
             .controlSize(.small)
             .help("About Watch for Stuck Files")
             .accessibilityLabel("About Watch for Stuck Files")
@@ -280,7 +277,7 @@ private struct WatchBar: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 7)
-        .glassEffect(.regular.tint(.orange.opacity(0.15)), in: .rect(cornerRadius: 12))
+        .glassBackground(tint: .orange.opacity(0.15), in: .rect(cornerRadius: 12))
     }
 
     private var info: some View {
@@ -538,8 +535,7 @@ private struct RowButton: View {
                 .font(.caption.weight(.semibold))
                 .frame(width: 18, height: 18)
         }
-        .buttonStyle(.glass)
-        .buttonBorderShape(.circle)
+        .glassCircleButtonStyle()
         .controlSize(.small)
         .help(title)
         .accessibilityLabel(title)

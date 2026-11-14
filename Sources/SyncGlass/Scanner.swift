@@ -124,7 +124,7 @@ private struct ScannerView: View {
                 .foregroundStyle(.tint)
                 .symbolEffect(.pulse, options: .repeating)
                 .frame(width: 48, height: 48)
-                .glassEffect(.regular.tint(.accentColor.opacity(0.2)), in: .circle)
+                .glassBackground(tint: .accentColor.opacity(0.2), in: .circle)
             VStack(alignment: .leading, spacing: 8) {
                 Text("Scanning for Transfers").font(.headline)
                 ProgressView().progressViewStyle(.linear)
@@ -139,7 +139,7 @@ private struct ScannerView: View {
                         .monospacedDigit()
                     Spacer()
                     Button("Cancel") { scanner.cancel() }
-                        .buttonStyle(.glass)
+                        .glassButtonStyle()
                         .keyboardShortcut(.cancelAction)
                 }
             }

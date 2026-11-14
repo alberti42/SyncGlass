@@ -205,7 +205,7 @@ struct WelcomeView: View {
                 .font(.system(size: 44, weight: .light))
                 .foregroundStyle(.tint)
                 .frame(width: 88, height: 88)
-                .glassEffect(.regular.tint(.accentColor.opacity(0.2)), in: .circle)
+                .glassBackground(tint: .accentColor.opacity(0.2), in: .circle)
                 .padding(.top, 8)
 
             VStack(spacing: 6) {
@@ -237,10 +237,10 @@ struct WelcomeView: View {
 
             HStack {
                 Button("Quit") { NSApp.terminate(nil) }
-                    .buttonStyle(.glass)
+                    .glassButtonStyle()
                 Spacer()
                 Button("Continue", action: done)
-                    .buttonStyle(.glassProminent)
+                    .glassProminentButtonStyle()
                     .keyboardShortcut(.defaultAction)
             }
             .controlSize(.large)
@@ -284,7 +284,7 @@ private struct ChoiceCard: View {
             .contentShape(.rect(cornerRadius: 14))
         }
         .buttonStyle(.plain)
-        .glassEffect(isSelected ? .regular.tint(.accentColor.opacity(0.15)) : .regular, in: .rect(cornerRadius: 14))
+        .glassBackground(tint: isSelected ? .accentColor.opacity(0.15) : nil, in: .rect(cornerRadius: 14))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
