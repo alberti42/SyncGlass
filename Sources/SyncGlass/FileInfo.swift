@@ -257,6 +257,7 @@ struct FileInfoView: View {
                 } footer: {
                     Text("Read with brctl status every minute while Watch for Stuck Files is on.")
                         .foregroundStyle(.secondary)
+                        .formFooter()
                 }
             }
 
@@ -287,6 +288,7 @@ struct FileInfoView: View {
             } footer: {
                 Text("macOS records no sync date. \"Attributes changed\" also moves when iCloud updates its own attributes after a transfer, and when tags or permissions change.")
                     .foregroundStyle(.secondary)
+                    .formFooter()
             }
         }
         .formStyle(.grouped)

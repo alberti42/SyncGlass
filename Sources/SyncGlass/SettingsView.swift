@@ -80,6 +80,7 @@ private struct LoginItemSection: View {
         } footer: {
             Text(error ?? LoginItem.statusDescription)
                 .foregroundStyle(error == nil ? AnyShapeStyle(.secondary) : AnyShapeStyle(.red))
+                .formFooter()
         }
         .onAppear { status = LoginItem.status }
         .onChange(of: scenePhase) { _, _ in status = LoginItem.status }
@@ -102,6 +103,7 @@ private struct UpdatesSection: View {
                 ? "SyncGlass checks once a week."
                 : "Updates are only available in SyncGlass.app.")
                 .foregroundStyle(.secondary)
+                .formFooter()
         }
         .disabled(!updater.isAvailable)
     }
@@ -145,6 +147,7 @@ private struct MonitoringPane: View {
             } footer: {
                 Text("Frequent checking re-checks 100 files per pass, economical checking 25.")
                     .foregroundStyle(.secondary)
+                    .formFooter()
             }
 
             Section {
@@ -152,6 +155,7 @@ private struct MonitoringPane: View {
             } footer: {
                 Text("SyncGlass lists uploads and downloads even when they started before SyncGlass opened: it remembers the files in transfer when it quits, and macOS tells it which files changed while it was not running (the same record of changed files that Time Machine uses). If you think a large upload or download that started before SyncGlass opened is missing from the list, Scan for Transfers checks every file in the folder again and lists the ones that iCloud is still uploading or downloading. The scan takes longer the more files the folder holds.")
                     .foregroundStyle(.secondary)
+                    .formFooter()
             }
         }
         .formStyle(.grouped)
@@ -187,7 +191,9 @@ private struct NotificationsPane: View {
             } header: {
                 Text("Uploads")
             } footer: {
-                Text("Short transfers finish without a notification.").foregroundStyle(.secondary)
+                Text("Short transfers finish without a notification.")
+                    .foregroundStyle(.secondary)
+                    .formFooter()
             }
 
             Section {
@@ -245,6 +251,7 @@ private struct HistoryPane: View {
                 Text((Paths.historyLog.path as NSString).abbreviatingWithTildeInPath)
                     .foregroundStyle(.secondary)
                     .textSelection(.enabled)
+                    .formFooter()
             }
 
             Section("Recent Files") {
@@ -335,7 +342,7 @@ private struct PatternSection: View {
         } header: {
             Text(title)
         } footer: {
-            Text(footer).foregroundStyle(.secondary)
+            Text(footer).foregroundStyle(.secondary).formFooter()
         }
         .onAppear { patterns = Prefs.store.stringArray(forKey: key) ?? [] }
         .onReceive(NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)) { _ in
@@ -394,5 +401,14 @@ enum FolderPicker {
         alert.addButton(withTitle: "Use Anyway")
         alert.addButton(withTitle: "Choose Another")
         return alert.runModal() == .alertFirstButtonReturn
+    }
+}
+
+extension View {
+    /// Left-aligns a grouped form's section footer. macOS 26 does this itself;
+    /// macOS 15 aligns footers to the right.
+    func formFooter() -> some View {
+        multilineTextAlignment(.leading)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
