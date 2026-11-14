@@ -7,8 +7,8 @@
 # `security find-identity -v -p codesigning`), e.g.
 #   SIGN_IDENTITY="Developer ID Application: Andrea Alberti (9V3X7C8VCK)" bin/build-app.sh
 # The app is then signed with the hardened runtime and a secure timestamp, as
-# notarization requires. Without SIGN_IDENTITY it is signed ad hoc, which is
-# enough to run it on this Mac.
+# notarization requires. Without SIGN_IDENTITY it is signed ad hoc, without the
+# hardened runtime, which is enough to run it on this Mac.
 #
 # Set ARCHS=native to build only for this Mac's architecture (faster).
 set -eu
@@ -48,19 +48,28 @@ xcrun actool Resources/AppIcon.icon --compile "$APP/Contents/Resources" \
     --output-partial-info-plist build/AppIcon-partial.plist >/dev/null
 
 # A secure timestamp needs Apple's timestamp server; ad-hoc signatures cannot have one.
-if [ "$IDENTITY" = "-" ]; then TIMESTAMP="--timestamp=none"; else TIMESTAMP="--timestamp"; fi
+# The hardened runtime is for notarization only: it turns on library validation,
+# which on macOS 27 refuses to load the ad-hoc-signed Sparkle into an ad-hoc app
+# ("different Team IDs"), so ad-hoc builds go without it.
+if [ "$IDENTITY" = "-" ]; then
+    TIMESTAMP="--timestamp=none"; RUNTIME=""
+else
+    TIMESTAMP="--timestamp"; RUNTIME="--options runtime"
+fi
 
 # Sign inside out: Sparkle's helpers, Sparkle, the login helper, then the app
 # that contains them. The order and the flags follow Sparkle's documentation
 # ("Code Signing", sparkle-project.org/documentation/sandboxing).
-SIGN="codesign --force --options runtime $TIMESTAMP --sign"
+SIGN="codesign --force $RUNTIME $TIMESTAMP --sign"
 $SIGN "$IDENTITY" "$SPARKLE/Versions/B/XPCServices/Installer.xpc"
 $SIGN "$IDENTITY" --preserve-metadata=entitlements "$SPARKLE/Versions/B/XPCServices/Downloader.xpc"
 $SIGN "$IDENTITY" "$SPARKLE/Versions/B/Autoupdate"
 $SIGN "$IDENTITY" "$SPARKLE/Versions/B/Updater.app"
 $SIGN "$IDENTITY" "$SPARKLE"
-codesign --force --options runtime "$TIMESTAMP" --sign "$IDENTITY" "$HELPER"
-codesign --force --options runtime "$TIMESTAMP" --sign "$IDENTITY" "$APP"
+# shellcheck disable=SC2086
+codesign --force $RUNTIME "$TIMESTAMP" --sign "$IDENTITY" "$HELPER"
+# shellcheck disable=SC2086
+codesign --force $RUNTIME "$TIMESTAMP" --sign "$IDENTITY" "$APP"
 codesign --verify --strict --verbose=1 "$APP"
 lipo -archs "$APP/Contents/MacOS/SyncGlass"
 
