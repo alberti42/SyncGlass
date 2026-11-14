@@ -24,6 +24,34 @@ import Testing
         #expect(!PathChecks.matches(path, pattern: "^Projects"))
     }
 
+    /// Desktop and Documents in iCloud are real folders in the home folder, and
+    /// FSEvents reports their files there.
+    @Test func defaultIncludesTrackDesktopAndDocuments() {
+        let includes = Prefs.defaultIncludePatterns(home: "/Users/me")
+        for path in [
+            path,
+            "/Users/me/Documents/report.pdf",
+            "/Users/me/Desktop/Folder/photo.png",
+            "/Users/me/Library/Mobile Documents/iCloud~md~obsidian/Documents/Vault/note.md",
+        ] {
+            #expect(PathChecks.passesFilters(path, includes: includes, excludes: []), "\(path)")
+        }
+        for path in [
+            "/Users/me/Downloads/file.zip",
+            "/Users/me/Documentsx/file.txt",
+            "/Users/other/Documents/file.txt",
+            "/Volumes/Disk/Users/me/Documents/file.txt",
+        ] {
+            #expect(!PathChecks.passesFilters(path, includes: includes, excludes: []), "\(path)")
+        }
+    }
+
+    @Test func defaultIncludesEscapeTheHomeFolder() {
+        let includes = Prefs.defaultIncludePatterns(home: "/Users/a.b+c")
+        #expect(PathChecks.passesFilters("/Users/a.b+c/Documents/x", includes: includes, excludes: []))
+        #expect(!PathChecks.passesFilters("/Users/aXbbc/Documents/x", includes: includes, excludes: []))
+    }
+
     @Test func invalidPatternMatchesNothing() {
         #expect(!PathChecks.matches(path, pattern: "("))
         #expect(PathChecks.passesFilters(path, includes: [], excludes: ["("]))

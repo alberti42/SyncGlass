@@ -172,25 +172,33 @@ final class StatusModel {
         diskUsageTask?.cancel()
         let folder = Prefs.folder
         diskUsageTask = Task { [weak self] in
-            let size = await Task.detached(priority: .utility) { () -> String? in
-                let p = Process()
-                p.executableURL = URL(fileURLWithPath: "/usr/bin/du")
-                p.arguments = ["-sh", folder]
-                let pipe = Pipe()
-                p.standardOutput = pipe
-                p.standardError = FileHandle.nullDevice
-                guard (try? p.run()) != nil else { return nil }
-                let data = pipe.fileHandleForReading.readDataToEndOfFile()
-                p.waitUntilExit()
-                return String(decoding: data, as: UTF8.self)
-                    .split(whereSeparator: \.isWhitespace).first.map(String.init)
-            }.value
+            let size = await Task.detached(priority: .utility) { Self.measureDiskUsage(of: folder) }.value
             guard let size, !Task.isCancelled else { return }
-            // du prints "12G"; show "12 GB".
-            let shown = size.dropLast() + " " + String(size.last ?? "B") + (size.last == "B" ? "" : "B")
+            let shown = Self.formatDiskUsage(size)
             Prefs.store.set(shown, forKey: PrefKey.iCloudDiskUsage)
             self?.diskUsage = shown
         }
+    }
+
+    /// du prints "12G"; show "12 GB".
+    nonisolated static func formatDiskUsage(_ size: String) -> String {
+        let unit = size.last ?? "B"
+        return String(size.dropLast()) + " " + String(unit) + (unit == "B" ? "" : "B")
+    }
+
+    /// The first column of `du -sh`, such as "12G".
+    nonisolated private static func measureDiskUsage(of folder: String) -> String? {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/usr/bin/du")
+        p.arguments = ["-sh", folder]
+        let pipe = Pipe()
+        p.standardOutput = pipe
+        p.standardError = FileHandle.nullDevice
+        guard (try? p.run()) != nil else { return nil }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        return String(decoding: data, as: UTF8.self)
+            .split(whereSeparator: \.isWhitespace).first.map(String.init)
     }
 
     // MARK: Actions

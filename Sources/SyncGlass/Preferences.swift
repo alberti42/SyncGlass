@@ -68,11 +68,19 @@ enum Paths {
 enum Prefs {
     static let store = UserDefaults.standard
 
-    static let defaultIncludePatterns = [
-        #"\/Mobile\s+Documents\/com~apple~CloudDocs"#,
-        #"\/Mobile\s+Documents\/.*\/Documents"#,
-        #"\/Mobile\s+Documents\/.*\/CloudStore"#,
-    ]
+    static let defaultIncludePatterns = defaultIncludePatterns(home: NSHomeDirectory())
+
+    /// With Desktop & Documents in iCloud, `~/Desktop` and `~/Documents` stay real
+    /// folders and iCloud Drive holds symlinks to them, so FSEvents reports their
+    /// files under the home folder, not under `Mobile Documents`.
+    static func defaultIncludePatterns(home: String) -> [String] {
+        [
+            #"\/Mobile\s+Documents\/com~apple~CloudDocs"#,
+            #"\/Mobile\s+Documents\/.*\/Documents"#,
+            #"\/Mobile\s+Documents\/.*\/CloudStore"#,
+            "^" + NSRegularExpression.escapedPattern(for: home) + "/(Desktop|Documents)/",
+        ]
+    }
 
     /// Default values. Registered defaults apply until the user changes a setting.
     static func registerDefaults() {
