@@ -5,6 +5,7 @@ import SwiftUI
 struct StatusPanel: View {
     @Bindable var model: StatusModel
     @Environment(\.openSettings) private var openSettings
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         VStack(spacing: 12) {
@@ -35,6 +36,7 @@ struct StatusPanel: View {
         .padding(14)
         .frame(width: 360)
         .onAppear {
+            model.dismissPanel = { dismiss() }
             model.refresh()
             model.startProgressUpdates()
         }
@@ -83,17 +85,30 @@ struct StatusPanel: View {
             watch.state = model.isWatchingForStuckFiles ? .on : .off
             menu.addItem(watch)
             menu.addItem(.separator())
-            menu.addItem(ActionMenuItem("Open History Log", systemImage: "doc.text") { model.openLog() })
-            menu.addItem(ActionMenuItem("Clear History…", systemImage: "trash") { model.clearHistory() })
+            // Watch for Stuck Files shows its result in the panel, so the panel
+            // stays open; the other items open a window or an app and close it.
+            menu.addItem(ActionMenuItem("Open History Log", systemImage: "doc.text") {
+                model.closePanel()
+                model.openLog()
+            })
+            menu.addItem(ActionMenuItem("Clear History…", systemImage: "trash") {
+                model.closePanel()
+                model.clearHistory()
+            })
             menu.addItem(.separator())
             menu.addItem(ActionMenuItem("Settings…", systemImage: "gearshape", key: ",") {
+                model.closePanel()
                 NSApp.activate()
                 openSettings()
             })
-            menu.addItem(ActionMenuItem("About SyncGlass", systemImage: "info.circle") { model.showAbout() })
+            menu.addItem(ActionMenuItem("About SyncGlass", systemImage: "info.circle") {
+                model.closePanel()
+                model.showAbout()
+            })
             if Updater.shared.isAvailable {
                 let title = Updater.shared.pendingVersion.map { "Update to \($0)…" } ?? "Check for Updates…"
                 menu.addItem(ActionMenuItem(title, systemImage: "arrow.down.circle") {
+                    model.closePanel()
                     Updater.shared.checkForUpdates()
                 })
             }
@@ -119,10 +134,10 @@ struct StatusPanel: View {
             Spacer(minLength: 0)
             GlassContainer(spacing: 6) {
                 HStack(spacing: 6) {
-                    FooterButton(title: "Open iCloud Drive", systemImage: "folder") { model.openICloudDrive() }
-                    FooterButton(title: "Open iCloud.com", systemImage: "safari") { model.openICloudOnline() }
-                    FooterButton(title: "iCloud Settings", systemImage: "icloud") { model.openICloudSettings() }
-                    FooterButton(title: "SyncGlass Settings", systemImage: "gearshape") {
+                    FooterButton(title: "Open iCloud Drive", systemImage: "folder", model: model) { model.openICloudDrive() }
+                    FooterButton(title: "Open iCloud.com", systemImage: "safari", model: model) { model.openICloudOnline() }
+                    FooterButton(title: "iCloud Settings", systemImage: "icloud", model: model) { model.openICloudSettings() }
+                    FooterButton(title: "SyncGlass Settings", systemImage: "gearshape", model: model) {
                         NSApp.activate()
                         openSettings()
                     }
@@ -187,13 +202,18 @@ private final class ActionMenuItem: NSMenuItem {
     @objc private func run() { handler() }
 }
 
+/// Every footer button opens a window or an app, so it closes the panel first.
 private struct FooterButton: View {
     let title: String
     let systemImage: String
+    let model: StatusModel
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            model.closePanel()
+            action()
+        } label: {
             Image(systemName: systemImage)
                 .frame(width: 22, height: 22)
         }
@@ -391,8 +411,14 @@ private struct TransferRow: View {
                     if !isComplete {
                         RowButton(title: "Stop Tracking", systemImage: "xmark") { model.ignore(path) }
                     }
-                    RowButton(title: "Get Info", systemImage: "info") { FileInfo.open(path, with: openWindow) }
-                    RowButton(title: "Show in Finder", systemImage: "magnifyingglass") { model.reveal(path) }
+                    RowButton(title: "Get Info", systemImage: "info") {
+                        model.closePanel()
+                        FileInfo.open(path, with: openWindow)
+                    }
+                    RowButton(title: "Show in Finder", systemImage: "magnifyingglass") {
+                        model.closePanel()
+                        model.reveal(path)
+                    }
                 }
             } else if isComplete {
                 Image(systemName: "checkmark.circle.fill")
@@ -472,8 +498,14 @@ private struct RecentRow: View {
         } trailing: {
             if hovering {
                 HStack(spacing: 4) {
-                    RowButton(title: "Get Info", systemImage: "info") { FileInfo.open(entry.path, with: openWindow) }
-                    RowButton(title: "Show in Finder", systemImage: "magnifyingglass") { model.reveal(entry.path) }
+                    RowButton(title: "Get Info", systemImage: "info") {
+                        model.closePanel()
+                        FileInfo.open(entry.path, with: openWindow)
+                    }
+                    RowButton(title: "Show in Finder", systemImage: "magnifyingglass") {
+                        model.closePanel()
+                        model.reveal(entry.path)
+                    }
                 }
             }
         }

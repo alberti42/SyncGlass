@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- The panel closes when one of its buttons opens a window or another app: Settings, About, updates, the history log, Clear History, the footer buttons, Get Info and Show in Finder. Watch for Stuck Files and Stop Tracking keep it open, since their result shows in the panel.
 - SyncGlass runs on macOS 15 Sequoia. There, buttons and backgrounds use the system's bordered style and materials instead of Liquid Glass, which needs macOS 26.
 
 ## [0.3.0] - 2026-10-27

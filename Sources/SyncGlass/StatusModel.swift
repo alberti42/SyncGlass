@@ -21,6 +21,8 @@ final class StatusModel {
     @ObservationIgnored private var hadTransfers = false
     /// Set by the debug preview so sample data is not replaced on appear.
     @ObservationIgnored var isPreview = false
+    /// The panel's `DismissAction`, set by `StatusPanel` when it appears.
+    @ObservationIgnored var dismissPanel: (() -> Void)?
     @ObservationIgnored private var diskUsageTask: Task<Void, Never>?
 
     var menuBarImage: NSImage {
@@ -236,6 +238,18 @@ final class StatusModel {
         guard alert.runModal() == .alertFirstButtonReturn else { return }
         Tracker.shared.clearHistory()
         update(Tracker.shared.snapshot())
+    }
+
+    /// Closes the panel. Buttons that open a window or another app call this
+    /// first; the panel would otherwise stay in front of the new window.
+    /// The `--preview` panel is an ordinary window and stays open.
+    ///
+    /// Uses SwiftUI's dismiss action. Closing the menu-bar extra's window
+    /// directly leaves SwiftUI believing the panel is open, and the next click
+    /// on the icon does nothing (tested on macOS 27).
+    func closePanel() {
+        guard !isPreview else { return }
+        dismissPanel?()
     }
 
     func showAbout() {
