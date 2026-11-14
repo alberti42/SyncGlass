@@ -44,7 +44,7 @@ cp Resources/LoginHelper-Info.plist "$HELPER/Contents/Info.plist"
 # names the icon in CFBundleIconName and CFBundleIconFile, so the partial plist
 # that actool writes is not used.
 xcrun actool Resources/AppIcon.icon --compile "$APP/Contents/Resources" \
-    --platform macosx --minimum-deployment-target 26.0 --app-icon AppIcon \
+    --platform macosx --minimum-deployment-target 15.0 --app-icon AppIcon \
     --output-partial-info-plist build/AppIcon-partial.plist >/dev/null
 
 # A secure timestamp needs Apple's timestamp server; ad-hoc signatures cannot have one.

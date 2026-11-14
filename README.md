@@ -10,7 +10,7 @@
 
 **[Download SyncGlass.zip](https://github.com/alberti42/SyncGlass/releases/latest/download/SyncGlass.zip)** (latest release, signed and notarized). See [Installation](#installation).
 
-Free and open source (GPL-3.0). Requires macOS 26 or later; runs natively on Apple silicon and Intel Macs.
+Free and open source (GPL-3.0). Requires macOS 15 Sequoia or later (Liquid Glass on macOS 26 and later); runs natively on Apple silicon and Intel Macs.
 
 SyncGlass lists iCloud Drive's transfers in one place: how many files are in flight, each file's percentage, and when each transfer finished.
 

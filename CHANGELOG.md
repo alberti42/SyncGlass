@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- SyncGlass runs on macOS 15 Sequoia. There, buttons and backgrounds use the system's bordered style and materials instead of Liquid Glass, which needs macOS 26.
+
 ## [0.3.0] - 2026-10-27
 
 ### Added
