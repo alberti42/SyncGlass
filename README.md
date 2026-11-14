@@ -12,6 +12,9 @@
 
 Free and open source (GPL-3.0). Requires macOS 15 Sequoia or later (Liquid Glass on macOS 26 and later); runs natively on Apple silicon and Intel Macs.
 
+> [!NOTE]
+> **Using an older macOS?** [Open an issue](https://github.com/alberti42/SyncGlass/issues/new) with your macOS version and Mac model. SyncGlass may be able to support it, but iCloud Drive behaves differently from one macOS version to the next, so support needs testing on your Mac: you would try test builds and report what you see.
+
 SyncGlass lists iCloud Drive's transfers in one place: how many files are in flight, each file's percentage, and when each transfer finished.
 
 <p align="left"><img src="Images/Screenshot.png" width="416" alt="The SyncGlass panel below its menu-bar icon, with the Recent list of files uploaded and synced in the last 31 seconds"></p>
